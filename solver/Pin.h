@@ -12,9 +12,9 @@
 
 const char NO_PIN	= -1;
 const char A_PIN = 1;
-const char B_PIN = 1;
-const char C_PIN = 1;
-const char D_PIN = 1;
+const char B_PIN = 2;
+const char C_PIN = 3;
+const char D_PIN = 4;
 const char E_PIN = 1;
 const char F_PIN = 1;
 const char G_PIN = 1;
