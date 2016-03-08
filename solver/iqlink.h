@@ -40,7 +40,7 @@ const char X_PIN = W_PIN + 1;
 //        /	    \
 //       4       5
 
-// Neighbourhood map
+// PIN Neighbourhood map
 //    A    B    C    D    E    F    
 // G    H    I    J    K    L
 //    M    N    O    P    Q    R
@@ -105,13 +105,10 @@ const unsigned short LBLUE = 0x0000;
 // This function performs rotation and possible flip with rotation based on parameter 0 .. 35 
 unsigned short Rotate(unsigned short piece, char position);
 
-// Occupancy map - keeps state of empty/full positions for all PINs
+// Occupancy vector - keeps state of empty/full positions for all PINs + piece id that occupies the PIN
 // For every PIN we need to store info about each direction (0 .. 5) and also about the center of the PIN (6).
-// These 7 values can be represented by 3 bits. We have 24 PINS => 72 bits. We will keep the state in 2 8-byte values.
-// Each PIN has 3 bits according to its order A_PIN (b0 - b2), ..., X_PIN(b70 - b72)
-//Example:
-//unsigned long long ulOCMapHigh = 0x0000000000000000;
-//unsigned long long ulOCMapLow = 0x0000000000000000;
+// These 7 values must keep id of the piece(12 = 4 bits) occupying it. We have 24 PINS => 24 * 7 * 4 bits.
+// After all a vector of 24 unsigned longs(32 bits) will be fine.
 
 bool IsPinAvailable(unsigned long long ulMapHigh, unsigned long long ulMapLow, char pin);
 
@@ -122,7 +119,7 @@ bool IsPlaceable(unsigned long long ulMapHigh, unsigned long long ulMapLow, char
 // Modifies 
 void PlacePiece(unsigned long long& ulMapHigh, unsigned long long& ulMapLow, char pin, unsigned short piece, char rotation);
 
-// Consumption map - keeps state of which pieces are available for next move
+// Consumption flag - keeps state of which pieces are available for next move
 // We have 12 pieces that can be used. Each piece has its own index of bit.
 
 char FindFreePiece(unsigned short consumption_map);
