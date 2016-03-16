@@ -5,32 +5,33 @@
 // IQ LINK game representation - place 12 pieces with 36 PIN openings to a board with only 24 PINs
 
 // PIN IDs are used as 
-const char NOPIN = -1;
-const char A_PIN = 0;
-const char B_PIN = A_PIN + 1;
-const char C_PIN = B_PIN + 1;
-const char D_PIN = C_PIN + 1;
-const char E_PIN = D_PIN + 1;
-const char F_PIN = E_PIN + 1;
-const char G_PIN = F_PIN + 1;
-const char H_PIN = G_PIN + 1;
-const char I_PIN = H_PIN + 1;
-const char J_PIN = I_PIN + 1;
-const char K_PIN = J_PIN + 1;
-const char L_PIN = K_PIN + 1;
-const char M_PIN = L_PIN + 1;
-const char N_PIN = M_PIN + 1;
-const char O_PIN = N_PIN + 1;
-const char P_PIN = O_PIN + 1;
-const char Q_PIN = P_PIN + 1;
-const char R_PIN = Q_PIN + 1;
-const char S_PIN = R_PIN + 1;
-const char T_PIN = S_PIN + 1;
-const char U_PIN = T_PIN + 1;
-const char V_PIN = U_PIN + 1;
-const char W_PIN = V_PIN + 1;
-const char X_PIN = W_PIN + 1;
+const unsigned char NOPIN = 0xFF;
+const unsigned char A_PIN = 0;
+const unsigned char B_PIN = A_PIN + 1;
+const unsigned char C_PIN = B_PIN + 1;
+const unsigned char D_PIN = C_PIN + 1;
+const unsigned char E_PIN = D_PIN + 1;
+const unsigned char F_PIN = E_PIN + 1;
+const unsigned char G_PIN = F_PIN + 1;
+const unsigned char H_PIN = G_PIN + 1;
+const unsigned char I_PIN = H_PIN + 1;
+const unsigned char J_PIN = I_PIN + 1;
+const unsigned char K_PIN = J_PIN + 1;
+const unsigned char L_PIN = K_PIN + 1;
+const unsigned char M_PIN = L_PIN + 1;
+const unsigned char N_PIN = M_PIN + 1;
+const unsigned char O_PIN = N_PIN + 1;
+const unsigned char P_PIN = O_PIN + 1;
+const unsigned char Q_PIN = P_PIN + 1;
+const unsigned char R_PIN = Q_PIN + 1;
+const unsigned char S_PIN = R_PIN + 1;
+const unsigned char T_PIN = S_PIN + 1;
+const unsigned char U_PIN = T_PIN + 1;
+const unsigned char V_PIN = U_PIN + 1;
+const unsigned char W_PIN = V_PIN + 1;
+const unsigned char X_PIN = W_PIN + 1;
 
+const unsigned char PIN_CNT = X_PIN + 1;
 // Direction & position definition
 //       2       1
 //        \     /
@@ -98,9 +99,13 @@ const unsigned short WINE = 0x0000;
 const unsigned short LGREEN = 0x0000;
 const unsigned short LBLUE = 0x0000;
 
+const unsigned char PIECES_CNT = 12;
+
 // Piece rotation is done via modular arithmetics mod 6. EVery piece at given PIN can be 
 // placed at most in 6 different direction for every PIN and since it is 2D object it can be flipped.
 // Totalling to 3 * 6 * 2 = 36 different positions at given PIN
+
+const unsigned char POSITIONS_CNT = 36;
 
 // This function performs rotation and possible flip with rotation based on parameter 0 .. 35 
 unsigned short Rotate(unsigned short piece, char position);
@@ -110,18 +115,12 @@ unsigned short Rotate(unsigned short piece, char position);
 // These 7 values must keep id of the piece(12 = 4 bits) occupying it. We have 24 PINS => 24 * 7 * 4 bits.
 // After all a vector of 24 unsigned longs(32 bits) will be fine.
 
-bool IsPinAvailable(unsigned long long ulMapHigh, unsigned long long ulMapLow, char pin);
+bool IsPinAvailable(std::vector<unsigned long> occupance, char pin);
+// Tests if the piece can be placed in given position and outputs new occupance if so
+bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned char pin, unsigned short piece, unsigned char rotation);
 
-// Tests if the piece can be placed in given position
-// To Do to be decided at next step...
-bool IsPlaceable(unsigned long long ulMapHigh, unsigned long long ulMapLow, char pin, unsigned short piece, char rotation);
-
-// Modifies 
-void PlacePiece(unsigned long long& ulMapHigh, unsigned long long& ulMapLow, char pin, unsigned short piece, char rotation);
-
-// Consumption flag - keeps state of which pieces are available for next move
+// Availability flag - keeps state of which pieces are available for next move
 // We have 12 pieces that can be used. Each piece has its own index of bit.
-
-char FindFreePiece(unsigned short consumption_map);
-void ConsumePiece(unsigned short consumption_map, char piece);
-void FreePiece(unsigned short consumption_map, char piece);
+inline bool IsPieceAvailable(unsigned short availability, unsigned char piece) { return 0 != (availability & (1 << piece)); }
+unsigned short ConsumePiece(unsigned short availability, unsigned char piece) { return availability & (~(1 << piece)); }
+unsigned short FreePiece(unsigned short availability, unsigned char piece) { return availability | (1 << piece); }
