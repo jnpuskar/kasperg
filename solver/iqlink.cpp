@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "iqlink.h"
 #include <set>
 #include <vector>
@@ -25,7 +26,7 @@ bool IsPinAvailable(unsigned long pin)
 	vcolors.push_back((unsigned char)c1);
 	vcolors.push_back((unsigned char)c0);
 	
-	std::for_each(vcolors.begin(), vcolors.end(), [=](auto c)
+	std::for_each(std::begin(vcolors), std::end(vcolors), [=](const unsigned char c) 
 	{
 		if (c != (unsigned char)PieceColor::NoColor)
 		{
@@ -43,7 +44,7 @@ bool IsPinAvailable(unsigned long pin)
 	return true;
 }
 // Tests if the piece can be placed in given position and outputs new occupance if so
-bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned char pin, unsigned short piece, unsigned char rotation)
+bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned long pin, unsigned long piece, unsigned char rotation)
 {
-
+	return false;
 }

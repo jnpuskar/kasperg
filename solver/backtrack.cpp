@@ -20,7 +20,7 @@ void CIqLinkBackTrack::Solve(std::vector<unsigned long> occupance, std::vector<u
 			if (IsPinAvailable(pin))
 			{
 				// Place a piece in every possible position (rotation/flip)
-				for (unsigned char pos = 0; pos < _positions; pos++)
+				for ( unsigned char pos = 0; pos < _positions; pos++)
 				{
 					// And if successfull provide new occupance 
 					std::vector<unsigned long> next_occupance;

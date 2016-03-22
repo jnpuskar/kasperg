@@ -22,13 +22,19 @@ const unsigned char IqLinkPinCount = (unsigned char)PinId::_;
 //        /	    \
 //       4       5
 enum class Direction : unsigned char { East, NorthEast, NorthWest, West, SouthWest, SouthEast, Center };
-	
+const std::vector<Direction> s_directions = {	Direction::East, 
+												Direction::NorthEast, 
+												Direction::NorthWest, 
+												Direction::West, 
+												Direction::SouthWest, 
+												Direction::SouthEast, 
+												Direction::Center };
 // PIN Neighbourhood map
 //    A    B    C    D    E    F    
 // G    H    I    J    K    L
 //    M    N    O    P    Q    R
 // S    T    U    V    W    X
-const std::map< unsigned char, std::vector<unsigned char> > s_neighbourhood =
+const std::map< PinId, std::vector<PinId> > s_neighbourhood =
 {	// PIN Name 			----- NEIGHBOUR IN EACH DIRECTION ----
 	// PinId		East    NorthEast NorthWest   West    SouthWest SouthEast 
 	{ PinId::A, { PinId::B, PinId::_, PinId::_, PinId::_, PinId::G, PinId::H } },
@@ -135,5 +141,5 @@ inline unsigned long MakeEmptyPin(PinId id)
 
 bool IsPinAvailable(unsigned long pin);
 // Tests if the piece can be placed in given position and outputs new occupance if so
-bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned char pin, unsigned short piece, unsigned char rotation);
+bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned long pin, unsigned long piece, unsigned char rotation);
 
