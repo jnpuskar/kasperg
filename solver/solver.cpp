@@ -4,23 +4,54 @@
 #include "stdafx.h"
 #include "iqlink.h"
 #include "backtrack.h"
+#include "presenter.h"
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	// Create backtracker instance
-	CIqLinkBackTrack solver(PIN_CNT, PIECES_CNT, POSITIONS_CNT);
+	CIqLinkBackTrack solver(IqLinkPiecePositions);
 	
 	// All Pieces available
-	std::vector<unsigned long> pieces = 0xFFFFFFFF;
-
+	std::vector<unsigned long> pieces = { LightBluePiece, DarkBluePiece, PurplePiece, BrownPiece, DarkGreenPiece, LightGreenPiece, PinkPiece, DarkRedPiece, LightRedPiece, OrangePiece, YellowPiece };
+	
 	// All PINs are empty
-	std::vector<unsigned long> occupance(PIN_CNT, 0xFFFFFFFF);
+	std::vector<unsigned long> occupance =
+	{ 
+		MakeEmptyPin(PinId::A),
+		MakeEmptyPin(PinId::B),
+		MakeEmptyPin(PinId::C),
+		MakeEmptyPin(PinId::D),
+		MakeEmptyPin(PinId::E),
+		MakeEmptyPin(PinId::F),
+		MakeEmptyPin(PinId::G),
+		MakeEmptyPin(PinId::H),
+		MakeEmptyPin(PinId::I),
+		MakeEmptyPin(PinId::J),
+		MakeEmptyPin(PinId::K),
+		MakeEmptyPin(PinId::L),
+		MakeEmptyPin(PinId::M),
+		MakeEmptyPin(PinId::N),
+		MakeEmptyPin(PinId::O),
+		MakeEmptyPin(PinId::P),
+		MakeEmptyPin(PinId::Q),
+		MakeEmptyPin(PinId::R),
+		MakeEmptyPin(PinId::S),
+		MakeEmptyPin(PinId::T),
+		MakeEmptyPin(PinId::U),
+		MakeEmptyPin(PinId::V),
+		MakeEmptyPin(PinId::W),
+		MakeEmptyPin(PinId::X)
+	};
 
 	// Find all solutions of the problem
-	solver.Solve(occupance, availability);
+	solver.Solve(occupance, pieces);
 
-	// Get computed solutions and visualize them
+	// Get computed solutions 
 	std::vector<std::vector<unsigned long> > solutions = solver.GetSolutions();
+
+	// Visualize the results
+	IqLinkPresenter presenter;
+	presenter.Visualize(solutions);
 
 	return 0;
 }

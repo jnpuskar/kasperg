@@ -4,35 +4,15 @@
 #include <algorithm>
 
 // IQ LINK game representation - place 12 pieces with 36 PIN openings on a board with only 24 PINs
+//    A    B    C    D    E    F    
+// G    H    I    J    K    L
+//    M    N    O    P    Q    R
+// S    T    U    V    W    X
 
-// PIN IDs are used as 
-const unsigned char NOPIN = 0xFE;
-const unsigned char A_PIN = 0;
-const unsigned char B_PIN = A_PIN + 1;
-const unsigned char C_PIN = B_PIN + 1;
-const unsigned char D_PIN = C_PIN + 1;
-const unsigned char E_PIN = D_PIN + 1;
-const unsigned char F_PIN = E_PIN + 1;
-const unsigned char G_PIN = F_PIN + 1;
-const unsigned char H_PIN = G_PIN + 1;
-const unsigned char I_PIN = H_PIN + 1;
-const unsigned char J_PIN = I_PIN + 1;
-const unsigned char K_PIN = J_PIN + 1;
-const unsigned char L_PIN = K_PIN + 1;
-const unsigned char M_PIN = L_PIN + 1;
-const unsigned char N_PIN = M_PIN + 1;
-const unsigned char O_PIN = N_PIN + 1;
-const unsigned char P_PIN = O_PIN + 1;
-const unsigned char Q_PIN = P_PIN + 1;
-const unsigned char R_PIN = Q_PIN + 1;
-const unsigned char S_PIN = R_PIN + 1;
-const unsigned char T_PIN = S_PIN + 1;
-const unsigned char U_PIN = T_PIN + 1;
-const unsigned char V_PIN = U_PIN + 1;
-const unsigned char W_PIN = V_PIN + 1;
-const unsigned char X_PIN = W_PIN + 1;
+// Each Pin has its name A - X
+enum class PinId : unsigned char { A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,_ };
+const unsigned char IqLinkPinCount = (unsigned char)PinId::_;
 
-const unsigned char PIN_CNT = X_PIN + 1;
 // Direction & position definition
 //       2       1
 //        \     /
@@ -41,77 +21,95 @@ const unsigned char PIN_CNT = X_PIN + 1;
 //         /   \ 
 //        /	    \
 //       4       5
-
+enum class Direction : unsigned char { East, NorthEast, NorthWest, West, SouthWest, SouthEast, Center };
+	
 // PIN Neighbourhood map
 //    A    B    C    D    E    F    
 // G    H    I    J    K    L
 //    M    N    O    P    Q    R
 // S    T    U    V    W    X
-const std::map< unsigned char, std::vector<char> > s_neighbourhood =
+const std::map< unsigned char, std::vector<unsigned char> > s_neighbourhood =
+{	// PIN Name 			----- NEIGHBOUR IN EACH DIRECTION ----
+	// PinId		East    NorthEast NorthWest   West    SouthWest SouthEast 
+	{ PinId::A, { PinId::B, PinId::_, PinId::_, PinId::_, PinId::G, PinId::H } },
+	{ PinId::B, { PinId::C, PinId::_, PinId::_, PinId::A, PinId::H, PinId::I } },
+	{ PinId::C, { PinId::D, PinId::_, PinId::_, PinId::B, PinId::I, PinId::J } },
+	{ PinId::D, { PinId::E, PinId::_, PinId::_, PinId::C, PinId::J, PinId::K } },
+	{ PinId::E, { PinId::F, PinId::_, PinId::_, PinId::D, PinId::K, PinId::L } },
+	{ PinId::F, { PinId::_, PinId::_, PinId::_, PinId::E, PinId::L, PinId::_ } },
+	// ID        0      1      2      3      4      5      
+	{ PinId::G, { PinId::H, PinId::A, PinId::_, PinId::_, PinId::_, PinId::M } },
+	{ PinId::H, { PinId::I, PinId::B, PinId::A, PinId::G, PinId::M, PinId::N } },
+	{ PinId::I, { PinId::J, PinId::C, PinId::B, PinId::H, PinId::N, PinId::O } },
+	{ PinId::J, { PinId::K, PinId::D, PinId::C, PinId::I, PinId::O, PinId::P } },
+	{ PinId::K, { PinId::L, PinId::E, PinId::D, PinId::J, PinId::P, PinId::Q } },
+	{ PinId::L, { PinId::_, PinId::F, PinId::E, PinId::K, PinId::Q, PinId::R } },
+	// ID        0      1      2      3      4      5      
+	{ PinId::M, { PinId::N, PinId::H, PinId::G, PinId::_, PinId::S, PinId::T } },
+	{ PinId::N, { PinId::O, PinId::I, PinId::H, PinId::M, PinId::T, PinId::U } },
+	{ PinId::O, { PinId::P, PinId::J, PinId::I, PinId::N, PinId::U, PinId::V } },
+	{ PinId::P, { PinId::Q, PinId::K, PinId::J, PinId::O, PinId::V, PinId::W } },
+	{ PinId::Q, { PinId::R, PinId::L, PinId::K, PinId::P, PinId::W, PinId::X } },
+	{ PinId::R, { PinId::_, PinId::_, PinId::L, PinId::Q, PinId::X, PinId::_ } },
+	// ID        0      1      2      3      4      5      
+	{ PinId::S, { PinId::T, PinId::M, PinId::_, PinId::_, PinId::_, PinId::_ } },
+	{ PinId::T, { PinId::U, PinId::N, PinId::M, PinId::S, PinId::_, PinId::_ } },
+	{ PinId::U, { PinId::V, PinId::O, PinId::N, PinId::T, PinId::_, PinId::_ } },
+	{ PinId::V, { PinId::W, PinId::P, PinId::O, PinId::U, PinId::_, PinId::_ } },
+	{ PinId::W, { PinId::X, PinId::Q, PinId::P, PinId::V, PinId::_, PinId::_ } },
+	{ PinId::X, { PinId::_, PinId::R, PinId::Q, PinId::W, PinId::_, PinId::_ } },
+};
+
+// 12 Pieces colors 
+enum class PieceColor : unsigned char
 {
-	//PIN  ,    ----- NEIGHBOUR IN EACH DIRECTION ----
-	// ID        0      1      2      3      4      5      
-	{ A_PIN, { B_PIN, NOPIN, NOPIN, NOPIN, G_PIN, H_PIN } },
-	{ B_PIN, { C_PIN, NOPIN, NOPIN, A_PIN, H_PIN, I_PIN } },
-	{ C_PIN, { D_PIN, NOPIN, NOPIN, B_PIN, I_PIN, J_PIN } },
-	{ D_PIN, { E_PIN, NOPIN, NOPIN, C_PIN, J_PIN, K_PIN } },
-	{ E_PIN, { F_PIN, NOPIN, NOPIN, D_PIN, K_PIN, L_PIN } },
-	{ F_PIN, { NOPIN, NOPIN, NOPIN, E_PIN, L_PIN, NOPIN } },
-	// ID        0      1      2      3      4      5      
-	{ G_PIN, { H_PIN, A_PIN, NOPIN, NOPIN, NOPIN, M_PIN } },
-	{ H_PIN, { I_PIN, B_PIN, A_PIN, G_PIN, M_PIN, N_PIN } },
-	{ I_PIN, { J_PIN, C_PIN, B_PIN, H_PIN, N_PIN, O_PIN } },
-	{ J_PIN, { K_PIN, D_PIN, C_PIN, I_PIN, O_PIN, P_PIN } },
-	{ K_PIN, { L_PIN, E_PIN, D_PIN, J_PIN, P_PIN, Q_PIN } },
-	{ L_PIN, { NOPIN, F_PIN, E_PIN, K_PIN, Q_PIN, R_PIN } },
-	// ID        0      1      2      3      4      5      
-	{ M_PIN, { N_PIN, H_PIN, G_PIN, NOPIN, S_PIN, T_PIN } },
-	{ N_PIN, { O_PIN, I_PIN, H_PIN, M_PIN, T_PIN, U_PIN } },
-	{ O_PIN, { P_PIN, J_PIN, I_PIN, N_PIN, U_PIN, V_PIN } },
-	{ P_PIN, { Q_PIN, K_PIN, J_PIN, O_PIN, V_PIN, W_PIN } },
-	{ Q_PIN, { R_PIN, L_PIN, K_PIN, P_PIN, W_PIN, X_PIN } },
-	{ R_PIN, { NOPIN, NOPIN, L_PIN, Q_PIN, X_PIN, NOPIN } },
-	// ID        0      1      2      3      4      5      
-	{ S_PIN, { T_PIN, M_PIN, NOPIN, NOPIN, NOPIN, NOPIN } },
-	{ T_PIN, { U_PIN, N_PIN, M_PIN, S_PIN, NOPIN, NOPIN } },
-	{ U_PIN, { V_PIN, O_PIN, N_PIN, T_PIN, NOPIN, NOPIN } },
-	{ V_PIN, { W_PIN, P_PIN, O_PIN, U_PIN, NOPIN, NOPIN } },
-	{ W_PIN, { X_PIN, Q_PIN, P_PIN, V_PIN, NOPIN, NOPIN } },
-	{ X_PIN, { NOPIN, R_PIN, Q_PIN, W_PIN, NOPIN, NOPIN } },
+	NoColor = 0,
+	LightBlue = 1,
+	DarkBlue,
+	Purple,
+	Brown,
+	DarkGreen,
+	LightGreen,
+	Pink,
+	DarkRed,
+	LightRed,
+	Orange,
+	Yellow
 };
 
 // 12 Piece definitions - each spans 3 PINS
 // Take 1st PIN and place the piece in such a way that the 2nd PIN is in direction 0. 
 // Mark direction of the piece between 1st and 2nd(3 bits) and 2nd and 3rd PIN (3bits) 
 // and also mark all occupated positions at each PIN (3 x 7 bits) => 32 bits is fine 
-// to hold it
+
 //  -Piece-Color- -Pin1-positions-  -Pin2-positions-  -Pin3-positions- -Pin1-Pin2-Direction-  -Pin2-Pin3-Direction- 
 //   b30 ... b27    b26 ... b20      b19 ...  b13        b12 ...  b6         b5 ... b3             b2 ... b0
+inline unsigned long MakePiece(PieceColor color, unsigned char pin1, unsigned char pin2, unsigned char pin3, Direction dir12, Direction dir23)
+{
+	return	(((unsigned long)color) << 27)	| 
+			(((unsigned long)pin1) << 20)	| 
+			(((unsigned long)pin2) << 13)	| 
+			(((unsigned long)pin3) << 6)	| 
+			(((unsigned long)dir12) << 3)	| 
+			(((unsigned long)dir23));
+}
 
-// 12 Pieces colors 
-const unsigned short BLUE = 0x0000;
-const unsigned short RED = 0x0000;
-const unsigned short GREEN = 0x0000;
-const unsigned short YELLOW = 0x0000;
-const unsigned short PURPLE = 0x0000;
-const unsigned short ORANGE = 0x0000;
-const unsigned short BROWN = 0x0000;
-const unsigned short PINK = 0x0000;
-const unsigned short KHAKI = 0x0000;
-const unsigned short WINE = 0x0000;
-const unsigned short LGREEN = 0x0000;
-const unsigned short LBLUE = 0x0000;
-
-const unsigned char PIECES_CNT = 12;
+const unsigned long LightBluePiece = MakePiece(PieceColor::LightBlue, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long DarkBluePiece = MakePiece(PieceColor::DarkBlue, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long PurplePiece = MakePiece(PieceColor::Purple, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long BrownPiece = MakePiece(PieceColor::Brown, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long DarkGreenPiece = MakePiece(PieceColor::DarkGreen, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long LightGreenPiece = MakePiece(PieceColor::LightGreen, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long PinkPiece = MakePiece(PieceColor::Pink, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long DarkRedPiece = MakePiece(PieceColor::DarkRed, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long LightRedPiece = MakePiece(PieceColor::LightRed, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long OrangePiece = MakePiece(PieceColor::Orange, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0, 0, 0, Direction::East, Direction::East);
 
 // Piece rotation is done via modular arithmetics mod 6. EVery piece at given PIN can be 
 // placed at most in 6 different direction for every PIN and since it is 2D object it can be flipped.
 // Totalling to 3 * 6 * 2 = 36 different positions at given PIN
-
-const unsigned char POSITIONS_CNT = 36;
-
-// This function performs rotation and possible flip with rotation based on parameter 0 .. 35 
-unsigned short Rotate(unsigned short piece, char position);
+const unsigned char IqLinkPiecePositions = 36;
 
 // Occupancy vector - keeps state of empty/full positions for all PINs + piece id that occupies the PIN
 // For every PIN we need to store info about each direction (0 .. 5) and also about the center of the PIN (6).
@@ -119,15 +117,23 @@ unsigned short Rotate(unsigned short piece, char position);
 // After all a vector of 24 unsigned longs(32 bits) will be fine.
 //     -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
 //   b30 ... b27   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
+inline unsigned long MakePin(PinId id, PieceColor colcenter, PieceColor colse, PieceColor colsw, PieceColor colw, PieceColor colnw, PieceColor colne, PieceColor cole )
+{
+	return	(((unsigned long)id) << 27)			|
+			(((unsigned long)colcenter) << 24)	|
+			(((unsigned long)colse) << 20)		|
+			(((unsigned long)colsw) << 16)		|
+			(((unsigned long)colw) << 12)		|
+			(((unsigned long)colnw) << 8)		|
+			(((unsigned long)colne) << 4)		|
+			(((unsigned long)cole));
+}
+inline unsigned long MakeEmptyPin(PinId id)
+{
+	return MakePin(id, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor);
+}
 
 bool IsPinAvailable(unsigned long pin);
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned char pin, unsigned short piece, unsigned char rotation);
 
-// Clone vector but leave the parameter out
-inline std::vector<unsigned long> RemovePiece(std::vector<unsigned long>& pieces, unsigned long piece)
-{
-	std::vector<unsigned long> v;
-	std::copy_if(pieces.begin(), pieces.end(), v.begin(), [=](unsigned long p) { return !(p == piece); });
-	return v;
-}

@@ -86,6 +86,7 @@
   <ItemGroup>
     <ClInclude Include="backtrack.h" />
     <ClInclude Include="iqlink.h" />
+    <ClInclude Include="presenter.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
