@@ -1,34 +1,33 @@
 #include "stdafx.h"
 #include "backtrack.h"
 
-void CIqLinkBackTrack::Solve(std::vector<unsigned long> occupance, unsigned long availability)
+void CIqLinkBackTrack::Solve(std::vector<unsigned long> occupance, std::vector<unsigned long> pieces)
 {
-	if (availability == 0)
+	// Trivial case ends the recursion successfully
+	if (pieces.empty())
 	{
 		// Found solution - record it
 		_solutions.push_back(occupance);
 	}
 
 	// For all available pieces
-	for (unsigned char piece = 0; piece < _pieces; piece++)
+	for (auto piece : pieces)
 	{
-		if (IsPieceAvailable(availability, piece))
+		// On all available PINs
+		for (auto pin : occupance)
 		{
-			// Try to place them in every possible position (rotation/flip)
-			for (unsigned char pos = 0; pos < _positions; pos++)
+			if (IsPinAvailable(pin))
 			{
-				// To any available PIN
-				for (unsigned char pin = A_PIN; pin < _pins; pin++)
+				// Place it in every possible position (rotation/flip)
+				for (unsigned char pos = 0; pos < _positions; pos++)
 				{
-					if (IsPinAvailable(occupance, pin))
+					std::vector<unsigned long> next_occupance;
+					
+					if (IsPlaceable(occupance, next_occupance, pin, piece, pos))
 					{
-						std::vector<unsigned long> new_occupance;
-						if (IsPlaceable(occupance, new_occupance, pin, piece, pos))
-						{
-							// And if placeable recursively iterate until we consume all pieces or hit the non-placeable situation
-							unsigned short new_availability = ConsumePiece(availability, piece);
-							return Solve(new_occupance, new_availability);
-						}
+						// And if placeable recursively iterate until we consume all pieces or hit the non-placeable situation
+						auto next_pieces = RemovePiece(pieces, piece);
+						return Solve(next_occupance, next_pieces);
 					}
 				}
 			}

@@ -11,7 +11,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	CIqLinkBackTrack solver(PIN_CNT, PIECES_CNT, POSITIONS_CNT);
 	
 	// All Pieces available
-	unsigned long availability = 0xFFFFFFFF;
+	std::vector<unsigned long> pieces = 0xFFFFFFFF;
 
 	// All PINs are empty
 	std::vector<unsigned long> occupance(PIN_CNT, 0xFFFFFFFF);

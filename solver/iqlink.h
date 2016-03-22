@@ -1,11 +1,12 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <algorithm>
 
-// IQ LINK game representation - place 12 pieces with 36 PIN openings to a board with only 24 PINs
+// IQ LINK game representation - place 12 pieces with 36 PIN openings on a board with only 24 PINs
 
 // PIN IDs are used as 
-const unsigned char NOPIN = 0xFF;
+const unsigned char NOPIN = 0xFE;
 const unsigned char A_PIN = 0;
 const unsigned char B_PIN = A_PIN + 1;
 const unsigned char C_PIN = B_PIN + 1;
@@ -46,7 +47,7 @@ const unsigned char PIN_CNT = X_PIN + 1;
 // G    H    I    J    K    L
 //    M    N    O    P    Q    R
 // S    T    U    V    W    X
-const std::map< char, std::vector<char> > s_neighbourhood =
+const std::map< unsigned char, std::vector<char> > s_neighbourhood =
 {
 	//PIN  ,    ----- NEIGHBOUR IN EACH DIRECTION ----
 	// ID        0      1      2      3      4      5      
@@ -82,10 +83,12 @@ const std::map< char, std::vector<char> > s_neighbourhood =
 // 12 Piece definitions - each spans 3 PINS
 // Take 1st PIN and place the piece in such a way that the 2nd PIN is in direction 0. 
 // Mark direction of the piece between 1st and 2nd(3 bits) and 2nd and 3rd PIN (3bits) 
-// and also mark all occupated positions at each PIN (3 x 3 bits) => 16 bits is fine 
+// and also mark all occupated positions at each PIN (3 x 7 bits) => 32 bits is fine 
 // to hold it
-//  -Pin1-positions-  -Pin2-positions-  -Pin3-positions- -Pin1-Pin2-Direction-  -Pin2-Pin3-Direction- 
-//    b14 ... b12       b11 ...  b9        b8 ...  b6        b5 ... b3             b2 ... b0
+//  -Piece-Color- -Pin1-positions-  -Pin2-positions-  -Pin3-positions- -Pin1-Pin2-Direction-  -Pin2-Pin3-Direction- 
+//   b30 ... b27    b26 ... b20      b19 ...  b13        b12 ...  b6         b5 ... b3             b2 ... b0
+
+// 12 Pieces colors 
 const unsigned short BLUE = 0x0000;
 const unsigned short RED = 0x0000;
 const unsigned short GREEN = 0x0000;
@@ -114,13 +117,17 @@ unsigned short Rotate(unsigned short piece, char position);
 // For every PIN we need to store info about each direction (0 .. 5) and also about the center of the PIN (6).
 // These 7 values must keep id of the piece(12 = 4 bits) occupying it. We have 24 PINS => 24 * 7 * 4 bits.
 // After all a vector of 24 unsigned longs(32 bits) will be fine.
+//     -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
+//   b30 ... b27   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
 
-bool IsPinAvailable(std::vector<unsigned long> occupance, char pin);
+bool IsPinAvailable(unsigned long pin);
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned char pin, unsigned short piece, unsigned char rotation);
 
-// Availability flag - keeps state of which pieces are available for next move
-// We have 12 pieces that can be used. Each piece has its own index of bit.
-inline bool IsPieceAvailable(unsigned short availability, unsigned char piece) { return 0 != (availability & (1 << piece)); }
-unsigned short ConsumePiece(unsigned short availability, unsigned char piece) { return availability & (~(1 << piece)); }
-unsigned short FreePiece(unsigned short availability, unsigned char piece) { return availability | (1 << piece); }
+// Clone vector but leave the parameter out
+inline std::vector<unsigned long> RemovePiece(std::vector<unsigned long>& pieces, unsigned long piece)
+{
+	std::vector<unsigned long> v;
+	std::copy_if(pieces.begin(), pieces.end(), v.begin(), [=](unsigned long p) { return !(p == piece); });
+	return v;
+}
