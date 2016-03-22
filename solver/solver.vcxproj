@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="backtrack.cpp" />
+    <ClCompile Include="iqlink.cpp" />
     <ClCompile Include="solver.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

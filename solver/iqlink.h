@@ -116,10 +116,10 @@ const unsigned char IqLinkPiecePositions = 36;
 // These 7 values must keep id of the piece(12 = 4 bits) occupying it. We have 24 PINS => 24 * 7 * 4 bits.
 // After all a vector of 24 unsigned longs(32 bits) will be fine.
 //     -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
-//   b30 ... b27   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
+//   b31 ... b28   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
 inline unsigned long MakePin(PinId id, PieceColor colcenter, PieceColor colse, PieceColor colsw, PieceColor colw, PieceColor colnw, PieceColor colne, PieceColor cole )
 {
-	return	(((unsigned long)id) << 27)			|
+	return	(((unsigned long)id) << 28)			|
 			(((unsigned long)colcenter) << 24)	|
 			(((unsigned long)colse) << 20)		|
 			(((unsigned long)colsw) << 16)		|
