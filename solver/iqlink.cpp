@@ -8,12 +8,12 @@ bool IsPinAvailable(unsigned long pin)
 	//     -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
 	//   b31 ... b28   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
 	unsigned long c6 = (pin & (0b1111 << 24)) >> 24;
-	unsigned long c5 = pin & (0b1111 << 20)) >> 20;
-	unsigned long c4 = pin & (0b1111 << 16)) >> 16;
-	unsigned long c3 = pin & (0b1111 << 12)) >> 12;
-	unsigned long c2 = pin & (0b1111 << 8)) >> 8;
-	unsigned long c1 = pin & (0b1111 << 4)) >> 4;
-	unsigned long c0 = pin & 0b1111;
+	unsigned long c5 = (pin & (0b1111 << 20)) >> 20;
+	unsigned long c4 = (pin & (0b1111 << 16)) >> 16;
+	unsigned long c3 = (pin & (0b1111 << 12)) >> 12;
+	unsigned long c2 = (pin & (0b1111 << 8))  >> 8;
+	unsigned long c1 = (pin & (0b1111 << 4))  >> 4;
+	unsigned long c0 = (pin & 0b1111);
 	
 	std::set<unsigned char> scolors;
 	std::vector<unsigned char> vcolors;
