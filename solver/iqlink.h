@@ -140,6 +140,7 @@ inline unsigned long MakeEmptyPin(PinId id)
 }
 
 bool IsPinAvailable(unsigned long pin);
+
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned long pin, unsigned long piece, unsigned char rotation);
 

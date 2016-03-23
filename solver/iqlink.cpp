@@ -26,13 +26,13 @@ bool IsPinAvailable(unsigned long pin)
 	vcolors.push_back((unsigned char)c1);
 	vcolors.push_back((unsigned char)c0);
 	
-	std::for_each(std::begin(vcolors), std::end(vcolors), [=](const unsigned char c) 
+	for( auto c : vcolors) 
 	{
 		if (c != (unsigned char)PieceColor::NoColor)
 		{
 			scolors.insert(c);
 		}
-	});
+	}
 
 	// Max 2 pieces at 1 Pin
 	if (scolors.size() > 1)
