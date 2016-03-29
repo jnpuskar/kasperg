@@ -70,15 +70,16 @@ const std::map< PinId, std::vector<PinId> > s_neighbourhood =
 enum class PieceColor : unsigned char
 {
 	NoColor = 0,
-	LightBlue = 1,
+	LightBlue,
 	DarkBlue,
-	Purple,
-	Brown,
+	DarkPurple,
+	LightPurple,
 	DarkGreen,
 	LightGreen,
-	Pink,
-	DarkRed,
-	LightRed,
+	Green,
+	LightPink,
+	DarkPink,
+	Red,
 	Orange,
 	Yellow
 };
@@ -100,17 +101,27 @@ inline unsigned long MakePiece(PieceColor color, unsigned char pin1, unsigned ch
 			(((unsigned long)dir23));
 }
 
-const unsigned long LightBluePiece = MakePiece(PieceColor::LightBlue, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long DarkBluePiece = MakePiece(PieceColor::DarkBlue, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long PurplePiece = MakePiece(PieceColor::Purple, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long BrownPiece = MakePiece(PieceColor::Brown, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long DarkGreenPiece = MakePiece(PieceColor::DarkGreen, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long LightGreenPiece = MakePiece(PieceColor::LightGreen, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long PinkPiece = MakePiece(PieceColor::Pink, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long DarkRedPiece = MakePiece(PieceColor::DarkRed, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long LightRedPiece = MakePiece(PieceColor::LightRed, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long OrangePiece = MakePiece(PieceColor::Orange, 0, 0, 0, Direction::East, Direction::East);
-const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0, 0, 0, Direction::East, Direction::East);
+const unsigned long LightBluePiece = MakePiece(PieceColor::LightBlue, 0b00101111, 0b00111111, 0b01000100, Direction::East, Direction::SouthEast);
+const unsigned long DarkBluePiece = MakePiece(PieceColor::DarkBlue, 0b01000001, 0b01001100, 0b00110111, Direction::East, Direction::NorthWest);
+const unsigned long DarkPurplePiece = MakePiece(PieceColor::DarkPurple, 0b01000001, 0b00111111, 0b00111110, Direction::East, Direction::NorthEast);
+const unsigned long LightPurplePiece = MakePiece(PieceColor::LightPurple, 0b01000001, 0b00111001, 0b01001000, Direction::East, Direction::East);
+const unsigned long DarkGreenPiece = MakePiece(PieceColor::DarkGreen, 0b01000001, 0b01001100, 0b00111011, Direction::East, Direction::NorthWest);
+const unsigned long LightGreenPiece = MakePiece(PieceColor::LightGreen, 0b01000001, 0b00111111, 0b00111011, Direction::East, Direction::East);
+const unsigned long GreenPiece = MakePiece(PieceColor::Green, 0b01000001, 0b00111111, 0b00111101, Direction::East, Direction::East);
+const unsigned long LightPinkPiece = MakePiece(PieceColor::LightPink, 0b00011111, 0b00111111, 0b01000100, Direction::East, Direction::SouthEast);
+const unsigned long DarkPinkPiece = MakePiece(PieceColor::DarkPink, 0b01000001, 0b00111110, 0b01000100, Direction::East, Direction::SouthEast);
+const unsigned long RedPiece = MakePiece(PieceColor::Red, 0b01000001, 0b00111101, 0b00111110, Direction::East, Direction::SouthWest);
+const unsigned long OrangePiece = MakePiece(PieceColor::Orange, 0b01000001, 0b00111110, 0b01100000, Direction::East, Direction::NorthWest);
+const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0b00110111, 0b00111111, 0b00111011, Direction::East, Direction::NorthEast);
+
+// At the given Pin Rotate piece and morph its pin flags and directions
+// Values 0 - 5   = rotate piece around 1st piece-pin
+//        6 - 11  = rotate around 2nd piece-pin 
+//        12 - 17 = rotate around 3rd piece-pin
+//		  18 - 23 = flip & rotate around 1st piece-pin
+//        24 - 29 = flip & rotate around 2nd piece-pin
+//	      30 - 35 = flip & rotate around 3rd piece-pin  
+unsigned long RotatePiece(unsigned long piece, unsigned char position);
 
 // Piece rotation is done via modular arithmetics mod 6. EVery piece at given PIN can be 
 // placed at most in 6 different direction for every PIN and since it is 2D object it can be flipped.
@@ -139,6 +150,7 @@ inline unsigned long MakeEmptyPin(PinId id)
 	return MakePin(id, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor);
 }
 
+// Checks whether we can insert a piece on this pin
 bool IsPinAvailable(unsigned long pin);
 
 // Tests if the piece can be placed in given position and outputs new occupance if so

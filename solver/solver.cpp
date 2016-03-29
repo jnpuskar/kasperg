@@ -10,10 +10,22 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	// Create backtracker instance
 	CIqLinkBackTrack solver(IqLinkPiecePositions);
-	
+
 	// All Pieces available
-	std::vector<unsigned long> pieces = { LightBluePiece, DarkBluePiece, PurplePiece, BrownPiece, DarkGreenPiece, LightGreenPiece, PinkPiece, DarkRedPiece, LightRedPiece, OrangePiece, YellowPiece };
-	
+	std::vector<unsigned long> pieces = {	LightBluePiece,
+											DarkBluePiece,
+											DarkPurplePiece,
+											LightPurplePiece,
+											DarkGreenPiece,
+											LightGreenPiece,
+											GreenPiece,
+											LightPinkPiece,
+											DarkPinkPiece,
+											RedPiece,
+											OrangePiece,
+											YellowPiece 
+	};
+
 	// All PINs are empty
 	std::vector<unsigned long> occupance =
 	{ 

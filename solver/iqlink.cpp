@@ -4,6 +4,11 @@
 #include <vector>
 #include <algorithm>
 
+unsigned long RotatePiece(unsigned long piece, unsigned char position)
+{
+	return 0;
+}
+
 bool IsPinAvailable(unsigned long pin)
 {
 	//     -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
