@@ -115,7 +115,7 @@ const unsigned long OrangePiece = MakePiece(PieceColor::Orange, 0b01000001, 0b00
 const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0b00110111, 0b00111111, 0b00111011, Direction::East, Direction::NorthEast);
 
 // At the given Pin Rotate piece and morph its pin flags and directions
-// Values 0 - 5   = rotate piece around 1st piece-pin
+// Values 0 - 5   = rotate around 1st piece-pin
 //        6 - 11  = rotate around 2nd piece-pin 
 //        12 - 17 = rotate around 3rd piece-pin
 //		  18 - 23 = flip & rotate around 1st piece-pin

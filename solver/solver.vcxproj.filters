@@ -47,5 +47,8 @@
     <ClCompile Include="iqlink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="presenter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
