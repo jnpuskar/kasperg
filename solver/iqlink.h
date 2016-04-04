@@ -121,7 +121,7 @@ const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0b00110111, 0b00
 //		  18 - 23 = flip & rotate around 1st piece-pin
 //        24 - 29 = flip & rotate around 2nd piece-pin
 //	      30 - 35 = flip & rotate around 3rd piece-pin  
-unsigned long RotatePiece(unsigned long piece, unsigned char position);
+bool RotatePiece(unsigned long pin, unsigned long piece, unsigned char position, unsigned long& pin1, unsigned long& pin2, unsigned long& pin3);
 
 // Piece rotation is done via modular arithmetics mod 6. EVery piece at given PIN can be 
 // placed at most in 6 different direction for every PIN and since it is 2D object it can be flipped.
@@ -151,7 +151,9 @@ inline unsigned long MakeEmptyPin(PinId id)
 }
 
 // Checks whether we can insert a piece on this pin
-bool IsPinAvailable(unsigned long pin);
+bool IsPinAvailable(unsigned long pin1, unsigned long pin2, unsigned long& pin12);
+unsigned long FindExistingPin(unsigned long pin, const std::vector<unsigned long>& occupance) { return 0; }
+bool UpdatePins(unsigned long pin1, unsigned long pin2, unsigned long pin3, const std::vector<unsigned long>& occupance);
 
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned long pin, unsigned long piece, unsigned char rotation);
