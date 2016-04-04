@@ -18,6 +18,7 @@ bool RotatePiece(unsigned long pin, unsigned long piece, unsigned char position,
 
 bool IsAvailable(unsigned long pin1, unsigned long pin2, unsigned long& pin12)
 {
+	CHECK COLOR!
 	//     -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
 	//   b31 ... b28   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
 	unsigned long c16 = (pin1 & (0b1111 << 24)) >> 24;
