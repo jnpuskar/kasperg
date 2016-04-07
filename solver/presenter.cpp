@@ -43,7 +43,7 @@ const std::vector<unsigned char> s_lineoff = {  16, 15, 14, 13, 14, 15, 16, // A
 												8, 7, 6, 5, 6, 7, 8 // S - X
 };
 
-void IqLinkPresenter::Visualize(const std::vector<std::vector<unsigned long>>& solutions)
+void IqLinkPresenter::Visualize(const std::vector<std::vector<unsigned long long>>& solutions)
 {
 	for (auto solution : solutions)
 	{

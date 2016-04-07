@@ -27,7 +27,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	};
 
 	// All PINs are empty
-	std::vector<unsigned long> occupance =
+	std::vector<unsigned long long> occupance =
 	{ 
 		MakeEmptyPin(PinId::A),
 		MakeEmptyPin(PinId::B),
@@ -59,7 +59,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	solver.Solve(occupance, pieces);
 
 	// Get computed solutions 
-	std::vector<std::vector<unsigned long> > solutions = solver.GetSolutions();
+	std::vector<std::vector<unsigned long long> > solutions = solver.GetSolutions();
 
 	// Visualize the results
 	IqLinkPresenter presenter;

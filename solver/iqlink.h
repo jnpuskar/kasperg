@@ -128,33 +128,33 @@ bool RotatePiece(unsigned long pin, unsigned long piece, unsigned char position,
 // Totalling to 3 * 6 * 2 = 36 different positions at given PIN
 const unsigned char IqLinkPiecePositions = 36;
 
-// Occupancy vector - keeps state of empty/full positions for all PINs + piece id that occupies the PIN
+// Occupancy vector - keeps state of empty/full positions for all PINs
 // For every PIN we need to store info about each direction (0 .. 5) and also about the center of the PIN (6).
-// These 7 values must keep id of the piece(12 = 4 bits) occupying it. We have 24 PINS => 24 * 7 * 4 bits.
-// After all a vector of 24 unsigned longs(32 bits) will be fine.
+// These 7 values must keep id of the piece(24 = 5 bits) occupying it. We have 24 PINS each 33 bits : 5 + 7 * 4.
+// After all a vector of 24 unsigned long longs(64 bits) will be fine.
 //     -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
-//   b31 ... b28   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
-inline unsigned long MakePin(PinId id, PieceColor colcenter, PieceColor colse, PieceColor colsw, PieceColor colw, PieceColor colnw, PieceColor colne, PieceColor cole )
+//   b32 ... b28   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
+inline unsigned long long MakePin(PinId id, PieceColor colcenter, PieceColor colse, PieceColor colsw, PieceColor colw, PieceColor colnw, PieceColor colne, PieceColor cole )
 {
-	return	(((unsigned long)id) << 28)			|
-			(((unsigned long)colcenter) << 24)	|
-			(((unsigned long)colse) << 20)		|
-			(((unsigned long)colsw) << 16)		|
-			(((unsigned long)colw) << 12)		|
-			(((unsigned long)colnw) << 8)		|
-			(((unsigned long)colne) << 4)		|
-			(((unsigned long)cole));
+	return	(((unsigned long long)id) << 28)		|
+			(((unsigned long long)colcenter) << 24) |
+			(((unsigned long long)colse) << 20)		|
+			(((unsigned long long)colsw) << 16)		|
+			(((unsigned long long)colw) << 12)		|
+			(((unsigned long long)colnw) << 8)		|
+			(((unsigned long long)colne) << 4)		|
+			(((unsigned long long)cole));
 }
-inline unsigned long MakeEmptyPin(PinId id)
+inline unsigned long long MakeEmptyPin(PinId id)
 {
 	return MakePin(id, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor);
 }
 
 // Checks whether we can insert a piece on this pin
-bool IsPinAvailable(unsigned long pin1, unsigned long pin2, unsigned long& pin12);
-unsigned long FindExistingPin(unsigned long pin, const std::vector<unsigned long>& occupance) { return 0; }
-bool UpdatePins(unsigned long pin1, unsigned long pin2, unsigned long pin3, const std::vector<unsigned long>& occupance);
+bool IsAvailable(unsigned long long pin1, unsigned long long pin2, unsigned long long & pin12);
+unsigned long long FindExistingPin(unsigned long long pin, const std::vector<unsigned long long>& occupance) { return 0; }
+bool UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupance);
 
 // Tests if the piece can be placed in given position and outputs new occupance if so
-bool IsPlaceable(std::vector<unsigned long> occupance, std::vector<unsigned long>& new_occupance, unsigned long pin, unsigned long piece, unsigned char rotation);
+bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<unsigned long long>& new_occupance, unsigned long long pin, unsigned long piece, unsigned char rotation);
 
