@@ -20,7 +20,7 @@ void CIqLinkBackTrack::Solve(std::vector<unsigned long long> occupance, std::vec
 			for ( unsigned char pos = 0; pos < _positions; pos++)
 			{
 				// And if successfull provide new occupance 
-				std::vector<unsigned long> next_occupance;
+				std::vector<unsigned long long> next_occupance;
 				if (IsPlaceable(occupance, next_occupance, pin, piece, pos))
 				{
 					// Remove used piece from pieces

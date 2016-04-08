@@ -21,14 +21,14 @@ const unsigned char IqLinkPinCount = (unsigned char)PinId::_;
 //         /   \ 
 //        /	    \
 //       4       5
-enum class Direction : unsigned char { East, NorthEast, NorthWest, West, SouthWest, SouthEast, Center };
+enum class Direction : unsigned char { East, NorthEast, NorthWest, West, SouthWest, SouthEast };
 const std::vector<Direction> s_directions = {	Direction::East, 
 												Direction::NorthEast, 
 												Direction::NorthWest, 
 												Direction::West, 
 												Direction::SouthWest, 
-												Direction::SouthEast, 
-												Direction::Center };
+												Direction::SouthEast
+											};
 // PIN Neighbourhood map
 //    A    B    C    D    E    F    
 // G    H    I    J    K    L
@@ -121,7 +121,7 @@ const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0b00110111, 0b00
 //		  18 - 23 = flip & rotate around 1st piece-pin
 //        24 - 29 = flip & rotate around 2nd piece-pin
 //	      30 - 35 = flip & rotate around 3rd piece-pin  
-bool RotatePiece(unsigned long pin, unsigned long piece, unsigned char position, unsigned long& pin1, unsigned long& pin2, unsigned long& pin3);
+bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char position, unsigned long long& pin1, unsigned long long& pin2, unsigned long long& pin3);
 
 // Piece rotation is done via modular arithmetics mod 6. EVery piece at given PIN can be 
 // placed at most in 6 different direction for every PIN and since it is 2D object it can be flipped.
@@ -151,9 +151,8 @@ inline unsigned long long MakeEmptyPin(PinId id)
 }
 
 // Checks whether we can insert a piece on this pin
-bool IsAvailable(unsigned long long pin1, unsigned long long pin2, unsigned long long & pin12);
-unsigned long long FindExistingPin(unsigned long long pin, const std::vector<unsigned long long>& occupance) { return 0; }
-bool UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupance);
+bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>& occupance, unsigned long long& pin12);
+void UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupance);
 
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<unsigned long long>& new_occupance, unsigned long long pin, unsigned long piece, unsigned char rotation);
