@@ -66,6 +66,24 @@ const std::map< PinId, std::vector<PinId> > s_neighbourhood =
 	{ PinId::X, { PinId::_, PinId::R, PinId::Q, PinId::W, PinId::_, PinId::_ } },
 };
 
+inline bool FindPin(PinId pinfrom, Direction dir, PinId& pinto)
+{
+	if(s_neighbourhood.count(pinfrom) > 0)
+	{
+		size_t offset = (size_t)dir;
+		if (offset < s_neighbourhood.find(pinfrom)->second.size())
+		{
+			pinto = s_neighbourhood.find(pinfrom)->second.at(offset);
+			if (pinto != PinId::_)
+			{
+				return true;
+			}
+		}		
+	}
+	
+	return false;	
+}
+
 // 12 Pieces colors 
 enum class PieceColor : unsigned char
 {
@@ -149,6 +167,19 @@ inline unsigned long long MakeEmptyPin(PinId id)
 {
 	return MakePin(id, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor);
 }
+
+inline unsigned long long MakePinWithPiece(PinId id, PieceColor color, unsigned char PiecePin)
+{
+	return MakePin(id, 
+		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // center
+		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // SE
+		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // SW
+		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // W
+		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // NW
+		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // NE
+		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color);// E
+}
+
 
 // Checks whether we can insert a piece on this pin
 bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>& occupance, unsigned long long& pin12);

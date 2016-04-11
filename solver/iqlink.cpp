@@ -5,7 +5,7 @@
 #include <algorithm>
 
 // Rotate character val by n left-shift this is mod 6!!!
-unsigned char RotateCounterClockWise(unsigned char val, unsigned char shift)
+unsigned long long RotateCounterClockWise(unsigned long long val, unsigned char shift)
 {
 	// Detect center occupance bit 7 and do not rotate in such case
 	if ((val & 0b01000000) != 0)
@@ -18,7 +18,7 @@ unsigned char RotateCounterClockWise(unsigned char val, unsigned char shift)
 }
 
 // Rotate character val by n right-shift this is mod 6!!!
-unsigned char RotateClockWise(unsigned char val, unsigned char shift)
+unsigned long long RotateClockWise(unsigned long long val, unsigned char shift)
 {
 	// Detect center occupance bit 7 and do not rotate in such case
 	if ((val & 0b01000000) != 0)
@@ -29,7 +29,7 @@ unsigned char RotateClockWise(unsigned char val, unsigned char shift)
 	unsigned char shiftmod = shift % 6;
 	return (val >> shiftmod) | (val << (6 - shiftmod));
 }
-unsigned char Flip(unsigned char val)
+unsigned long long Flip(unsigned long long val)
 {
 	// Detect center occupance bit 7 and do not rotate in such case
 	if ((val & 0b01000000) != 0)
@@ -39,14 +39,14 @@ unsigned char Flip(unsigned char val)
 	}
 
 	// Bits 0 and 3 stay, bits 2 flips with 4, bit 1 flips with 5
-	unsigned char bit2 = val & 0b00000100;
-	unsigned char bit4 = val & 0b00010000;
+	unsigned long long bit2 = val & 0b00000100;
+	unsigned long long bit4 = val & 0b00010000;
 	
-	unsigned char bit1 = val & 0b00000010;
-	unsigned char bit5 = val & 0b00100000;
+	unsigned long long bit1 = val & 0b00000010;
+	unsigned long long bit5 = val & 0b00100000;
 
-	unsigned char bit0 = val & 0b00000001;
-	unsigned char bit3 = val & 0b00001000;
+	unsigned long long bit0 = val & 0b00000001;
+	unsigned long long bit3 = val & 0b00001000;
 
 	return (bit1 << 4) | (bit2 << 2) | bit3 | (bit4 >> 2) | (bit5 >> 4) | bit0;
 }
@@ -94,12 +94,32 @@ Direction Flip(Direction dir)
 //	      30 - 35 = flip & rotate around 3rd piece-pin  
 bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char position, unsigned long long& pin1, unsigned long long& pin2, unsigned long long& pin3)
 {
-	//  -Piece-Color- -Pin1-positions-  -Pin2-positions-  -Pin3-positions- -Pin1-Pin2-Direction-  -Pin2-Pin3-Direction- 
-	//   b30 ... b27    b26 ... b20      b19 ...  b13        b12 ...  b6         b5 ... b3             b2 ... b0
+	// Piece
+	// -Piece-Color- -Pin1-positions-  -Pin2-positions-  -Pin3-positions- -Pin1-Pin2-Direction-  -Pin2-Pin3-Direction- 
+	// b30 ... b27    b26 ... b20      b19 ...  b13        b12 ...  b6         b5 ... b3             b2 ... b0
+	PieceColor color				= (PieceColor)((piece & 0b01111000000000000000000000000000) >> 27);
+	// Pin1  
+	unsigned long long ullpiecepin1	= (piece & 0b00000111111100000000000000000000) >> 20;
+	// Pin2  
+	unsigned long long ullpiecepin2	= (piece & 0b00000000000011111110000000000000) >> 13;
+	// Pin3  
+	unsigned long long ullpiecepin3	= (piece & 0b00000000000000000001111111000000) >> 6;
+	// Dir12  
+	Direction dir12					= (Direction)((piece & 0b00000000000000000000000000111000) >> 3);
+	// Dir23
+	Direction dir23					= (Direction)(piece & 0b00000000000000000000000000000111);
 	
+	// Pin
+	// -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
+	// b32 ... b28   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
+	
+	PinId pin1Id = (PinId)(pin >> 28);
+	PinId pin2Id, pin3Id;
+
 	// Rotation is only done for each direction on bits 0 ... 5, bit 6 means center and does not rotate
-	
 	unsigned char rotation = position % 6;
+
+	// Pin1 with Id is 
 	switch (position)
 	{
 
@@ -110,7 +130,21 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 	case 3:
 	case 4:
 	case 5:
-
+		// Rotate positions at Pin and rotate directions
+		ullpiecepin1	= RotateCounterClockWise(ullpiecepin1, rotation);
+		ullpiecepin2	= RotateCounterClockWise(ullpiecepin2, rotation);
+		ullpiecepin3	= RotateCounterClockWise(ullpiecepin3, rotation);
+		dir12 = RotateCounterClockWise(dir12, rotation);
+		dir23 = RotateCounterClockWise(dir23, rotation);
+		// Find new pins
+		if(!FindPin(pin1Id, dir12, pin2Id))
+		{
+			return false;
+		}
+		if (!FindPin(pin2Id, dir23, pin3Id))
+		{
+			return false;
+		}
 		break;
 	// 6 - 11  = rotate around 2nd piece-pin 
 	case 6:
@@ -155,6 +189,11 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 		return false;
 	}
 	
+	// Costruct new Pins occupied by this piece in the given position
+	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin1);
+	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
+	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
+
 	return true;
 }
 
@@ -170,17 +209,30 @@ bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>&
 
 	//   -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
 	//   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
-	//   Direction bits ignore the PinId
-	const unsigned long long cDirectionBits = 0b1111111111111111111111111111; // bits 0 ... 27
+	unsigned long long c16 = (pin1 & (0b1111 << 24)) >> 24;
+	unsigned long long c15 = (pin1 & (0b1111 << 20)) >> 20;
+	unsigned long long c14 = (pin1 & (0b1111 << 16)) >> 16;
+	unsigned long long c13 = (pin1 & (0b1111 << 12)) >> 12;
+	unsigned long long c12 = (pin1 & (0b1111 << 8)) >> 8;
+	unsigned long long c11 = (pin1 & (0b1111 << 4)) >> 4;
+	unsigned long long c10 = (pin1 & 0b1111);
+				 
+	unsigned long long c26 = (pin2 & (0b1111 << 24)) >> 24;
+	unsigned long long c25 = (pin2 & (0b1111 << 20)) >> 20;
+	unsigned long long c24 = (pin2 & (0b1111 << 16)) >> 16;
+	unsigned long long c23 = (pin2 & (0b1111 << 12)) >> 12;
+	unsigned long long c22 = (pin2 & (0b1111 << 8)) >> 8;
+	unsigned long long c21 = (pin2 & (0b1111 << 4)) >> 4;
+	unsigned long long c20 = (pin2 & 0b1111);
 
-	// Availability is determined by the bitwise NAND operation
-	unsigned long long nand = ~((pin1 & cDirectionBits) & (pin2 & cDirectionBits));
-		
-	// Directions of the 2 pins must not overlap. When no overlap happens the NAND gives all 1s 
-	if (nand != cDirectionBits)
-	{
-		return false;
-	}
+	// Positions of the 2 pins must not overlap 
+	if (c20 != 0 && c10 != 0) return false;
+	if (c21 != 0 && c11 != 0) return false;
+	if (c22 != 0 && c12 != 0) return false;
+	if (c23 != 0 && c13 != 0) return false;
+	if (c24 != 0 && c14 != 0) return false;
+	if (c25 != 0 && c15 != 0) return false;
+	if (c26 != 0 && c16 != 0) return false;
 	
 	// Construct the new resulting pin by bitwise OR
 	pin12 = pin1 | pin2;
