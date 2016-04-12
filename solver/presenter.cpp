@@ -100,25 +100,109 @@ void IqLinkPresenter::DisplayPin(HANDLE h, unsigned long long pin)
 	unsigned long long c1 = (pin & (0b1111 << 4)) >> 4;
 	unsigned long long c0 = (pin & 0b1111);
 
+	SHORT x = IqLinkPin::GetX((PinId)id);
+	SHORT y = IqLinkPin::GetY((PinId)id);
+
+	IqLinkPin iqpin((PinId)id, x, y);
+	iqpin.Display(h, c6, c5, c4, c3, c2, c1, c0);
+}
+
+SHORT IqLinkPin::GetX(PinId id)
+{
+	switch (id)
+	{
+	case PinId::A:
+	case PinId::M:
+		return 20;
+	case PinId::B:
+	case PinId::N:
+		return 36;
+	case PinId::C:
+	case PinId::O:
+		return 52;
+	case PinId::D:
+	case PinId::P:
+		return 68;
+	case PinId::E:
+	case PinId::Q:
+		return 84;
+	case PinId::F:
+	case PinId::R:
+		return 100;
+
+	case PinId::G:
+	case PinId::S:
+		return 12;
+	case PinId::H:
+	case PinId::T:
+		return 28;
+	case PinId::I:
+	case PinId::U:
+		return 44;
+	case PinId::J:
+	case PinId::V:
+		return 60;
+	case PinId::K:
+	case PinId::W:
+		return 76;
+	case PinId::L:
+	case PinId::X:
+		return 92;
+	default:
+		return 0;
+	}
+}
+SHORT IqLinkPin::GetY(PinId id)
+{
+	switch (id)
+	{
+	case PinId::A:
+	case PinId::B:
+	case PinId::C:
+	case PinId::D:
+	case PinId::E:
+	case PinId::F:
+		return 4;
+	case PinId::G:
+	case PinId::H:
+	case PinId::I:
+	case PinId::J:
+	case PinId::K:
+	case PinId::L:
+		return 12;
+	case PinId::M:
+	case PinId::N:
+	case PinId::O:
+	case PinId::P:
+	case PinId::Q:
+	case PinId::R:
+		return 20;
+	case PinId::S:
+	case PinId::T:
+	case PinId::U:
+	case PinId::V:
+	case PinId::W:
+	case PinId::X:
+		return 28;
+	default:
+		return 0;
+	}
+}
+void IqLinkPin::Display(HANDLE h, unsigned char c6, unsigned char c5, unsigned char c4, unsigned char c3, unsigned char c2, unsigned char c1, unsigned char c0)
+{
+
+}
+
 	// 12 lines + center	
-	//			     * --- *   
+	//			     2 --- 1   
 	//			    / \   / \	
 	//			   /   \ /   \	
-	//			  * --- A --- *
+	//			  3 --- A --- 0
 	//			   \   / \   /	
 	//			    \ /	  \ /	
-	//			     * --- *	
+	//			     4 --- 5	
 								   
 	std::vector<COORD> s_vCenters =
-		//     A       B        C       D       E       F				
-		{ {20, 4}, {36, 4},{52, 4},{68, 4},{84, 4},{100, 4},
-		//     G       H        I       J       K       L				
-		   { 12, 12 },{ 28, 12 },{ 44, 12 },{ 60, 12 },{ 76, 12},{ 92, 12 },
-		//    M      N        O       P       Q      R			
-		  { { 20, 20 },{ 36, 20},{ 52, 20 },{ 68, 20 },{ 84, 20 },{ 100, 20 },
-		//     S       T        U       V       W       X				
-		  { 12, 28 },{ 28, 28 },{ 44, 28 },{ 60, 28 },{ 76, 28 },{ 92, 28 }};
-
-
+	
 	SetConsoleTextAttribute(h, (WORD)c6);
 }
