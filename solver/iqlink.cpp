@@ -65,7 +65,11 @@ Direction RotateClockWise(Direction dir, unsigned char shift)
 
 	return s_directions.at(index);
 }
-
+Direction Inverse(Direction dir)
+{
+	unsigned char d = (unsigned char)dir;
+	return (Direction)(d % 6);
+}
 Direction Flip(Direction dir)
 {
 	switch (dir)
@@ -119,21 +123,36 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 	// Rotation is only done for each direction on bits 0 ... 5, bit 6 means center and does not rotate
 	unsigned char rotation = position % 6;
 
+	// Flip the piece for position 18 and up
+	if (position >= 18)
+	{
+		ullpiecepin1 = Flip(ullpiecepin1);
+		ullpiecepin2 = Flip(ullpiecepin2);
+		ullpiecepin3 = Flip(ullpiecepin3);
+		dir12 = Flip(dir12);
+		dir23 = Flip(dir23);
+	}
+
+	// Rotate the piece accordingly
+	ullpiecepin1 = RotateCounterClockWise(ullpiecepin1, rotation);
+	ullpiecepin2 = RotateCounterClockWise(ullpiecepin2, rotation);
+	ullpiecepin3 = RotateCounterClockWise(ullpiecepin3, rotation);
+
 	// Pin1 with Id is 
 	switch (position)
-	{
-
-	// 0 - 5   = rotate around 1st piece-pin
-	case 0:
+	{	
+	case 0: // 0 - 5  rotate around 1st piece-pin
 	case 1:
 	case 2:
 	case 3:
 	case 4:
 	case 5:
-		// Rotate positions at Pin and rotate directions
-		ullpiecepin1	= RotateCounterClockWise(ullpiecepin1, rotation);
-		ullpiecepin2	= RotateCounterClockWise(ullpiecepin2, rotation);
-		ullpiecepin3	= RotateCounterClockWise(ullpiecepin3, rotation);
+	case 18: // 18 - 23 = flip & rotate around 1st piece-pin
+	case 19:
+	case 20:
+	case 21:
+	case 22:
+	case 23:
 		dir12 = RotateCounterClockWise(dir12, rotation);
 		dir23 = RotateCounterClockWise(dir23, rotation);
 		// Find new pins
@@ -145,55 +164,72 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 		{
 			return false;
 		}
+		// Costruct new Pins occupied by this piece in the given position
+		pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin1);
+		pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
+		pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
 		break;
-	// 6 - 11  = rotate around 2nd piece-pin 
-	case 6:
+
+	case 6:// 6 - 11  = rotate around 2nd piece-pin 
 	case 7:
 	case 8:
 	case 9:
 	case 10:
-	case 11:
-		break;
-	// 12 - 17 = rotate around 3rd piece - pin
-	case 12:
-	case 13:
-	case 14:
-	case 15:
-	case 16:
-	case 17:
-	// 18 - 23 = flip & rotate around 1st piece-pin
-	case 18:
-	case 19:
-	case 20:
-	case 21:
-	case 22:
-	case 23:
-		break;
-	// 24 - 29 = flip & rotate around 2nd piece-pin
-	case 24:
+	case 11:		
+	case 24:// 24 - 29 = flip & rotate around 2nd piece-pin
 	case 25:
 	case 26:
 	case 27:
 	case 28:
-	case 29:
+	case 29:		
+		dir12 = RotateCounterClockWise(Inverse(dir12), rotation); // pin1Id is the middle pin
+		dir23 = RotateCounterClockWise(dir23, rotation);
+		// Find new pins - pin1Id is in the middle
+		if (!FindPin(pin1Id, dir12, pin2Id))
+		{
+			return false;
+		}
+		if (!FindPin(pin1Id, dir23, pin3Id))
+		{
+			return false;
+		}
+		// Costruct new Pins occupied by this piece in the given position
+		pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin2);
+		pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin1);
+		pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
 		break;
-	// 30 - 35 = flip & rotate around 3rd piece-pin  
-	case 30:
+	case 12:// 12 - 17 = rotate around 3rd piece - pin
+	case 13:
+	case 14:
+	case 15:
+	case 16:
+	case 17:		
+	case 30:// 30 - 35 = flip & rotate around 3rd piece-pin  
 	case 31:
 	case 32:
 	case 33:
 	case 34:
-	case 35:
+	case 35:		
+		dir12 = RotateCounterClockWise(Inverse(dir12), rotation); // pin1Id is the most right one
+		dir23 = RotateCounterClockWise(Inverse(dir23), rotation);
+		// Find new pins - pin1Id is the most right one
+		if (!FindPin(pin1Id, dir23, pin2Id))
+		{
+			return false;
+		}
+		if (!FindPin(pin2Id, dir12, pin3Id))
+		{
+			return false;
+		}
+		// Costruct new Pins occupied by this piece in the given position
+		pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin3);
+		pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
+		pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin1);		
 		break;
+
 	default:
 		return false;
 	}
-	
-	// Costruct new Pins occupied by this piece in the given position
-	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin1);
-	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
-	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
-
 	return true;
 }
 

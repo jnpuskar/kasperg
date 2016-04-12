@@ -70,7 +70,7 @@ inline bool FindPin(PinId pinfrom, Direction dir, PinId& pinto)
 {
 	if(s_neighbourhood.count(pinfrom) > 0)
 	{
-		size_t offset = (size_t)dir;
+		size_t offset = (size_t)dir % 6;
 		if (offset < s_neighbourhood.find(pinfrom)->second.size())
 		{
 			pinto = s_neighbourhood.find(pinfrom)->second.at(offset);
