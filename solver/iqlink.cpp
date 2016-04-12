@@ -101,7 +101,7 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 	// Piece
 	// -Piece-Color- -Pin1-positions-  -Pin2-positions-  -Pin3-positions- -Pin1-Pin2-Direction-  -Pin2-Pin3-Direction- 
 	// b30 ... b27    b26 ... b20      b19 ...  b13        b12 ...  b6         b5 ... b3             b2 ... b0
-	PieceColor color				= (PieceColor)((piece & 0b01111000000000000000000000000000) >> 27);
+	PieceColor color = (PieceColor)((piece & 0b01111000000000000000000000000000) >> 27);
 	// Pin1  
 	unsigned long long ullpiecepin1	= (piece & 0b00000111111100000000000000000000) >> 20;
 	// Pin2  
@@ -109,9 +109,9 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 	// Pin3  
 	unsigned long long ullpiecepin3	= (piece & 0b00000000000000000001111111000000) >> 6;
 	// Dir12  
-	Direction dir12					= (Direction)((piece & 0b00000000000000000000000000111000) >> 3);
+	Direction dir12 = (Direction)((piece & 0b00000000000000000000000000111000) >> 3);
 	// Dir23
-	Direction dir23					= (Direction)(piece & 0b00000000000000000000000000000111);
+	Direction dir23 = (Direction)(piece & 0b00000000000000000000000000000111);
 	
 	// Pin
 	// -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
