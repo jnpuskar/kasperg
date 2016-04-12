@@ -104,7 +104,7 @@ void IqLinkPresenter::DisplayPin(HANDLE h, unsigned long long pin)
 	SHORT y = IqLinkPin::GetY((PinId)id);
 
 	IqLinkPin iqpin((PinId)id, x, y);
-	iqpin.Display(h, c6, c5, c4, c3, c2, c1, c0);
+	iqpin.Display(h, (PieceColor)c6, (PieceColor)c5, (PieceColor)c4, (PieceColor)c3, (PieceColor)c2, (PieceColor)c1, (PieceColor)c0);
 }
 
 SHORT IqLinkPin::GetX(PinId id)
@@ -188,21 +188,21 @@ SHORT IqLinkPin::GetY(PinId id)
 		return 0;
 	}
 }
-void IqLinkPin::Display(HANDLE h, unsigned char c6, unsigned char c5, unsigned char c4, unsigned char c3, unsigned char c2, unsigned char c1, unsigned char c0)
+void IqLinkPin::Display(HANDLE h, PieceColor c6, PieceColor c5, PieceColor c4, PieceColor c3, PieceColor c2, PieceColor c1, PieceColor c0)
 {
-
+	// Only print 0 .. 5 and center
 }
 
-	// 12 lines + center	
-	//			     2 --- 1   
-	//			    / \   / \	
-	//			   /   \ /   \	
-	//			  3 --- A --- 0
-	//			   \   / \   /	
-	//			    \ /	  \ /	
-	//			     4 --- 5	
-								   
-	std::vector<COORD> s_vCenters =
-	
-	SetConsoleTextAttribute(h, (WORD)c6);
-}
+//	// 12 lines + center	
+//	//			     2 --- 1   
+//	//			    / \   / \	
+//	//			   /   \ /   \	
+//	//			  3 --- A --- 0
+//	//			   \   / \   /	
+//	//			    \ /	  \ /	
+//	//			     4 --- 5	
+//								   
+//	std::vector<COORD> s_vCenters =
+//	
+//	SetConsoleTextAttribute(h, (WORD)c6);
+//}
