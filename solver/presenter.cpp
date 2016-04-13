@@ -39,15 +39,6 @@ using namespace std;
 //	    \ /	  \ /	    \ /   \ /	    \ /	  \ /	    \ /   \ /	    \ /	  \ /	    \ /   \ /
 //	     4 --- 5		 4 --- 5	     4 --- 5		 4 --- 5	     4 --- 5		 4 --- 5
 
-const std::vector<unsigned char> s_lineoff = {  16, 15, 14, 13, 14, 15, 16, // A - F
-                                                15, 
-	                                            8, 7, 6, 5, 6, 7, 8, // G - L
-                                                15,
-											    16, 15, 14, 13, 14, 15, 16, // M - R
-												15,
-												8, 7, 6, 5, 6, 7, 8 // S - X
-};
-
 void IqLinkPresenter::Visualize(const std::vector<std::vector<unsigned long long>>& solutions)
 {
 	for (auto solution : solutions)
@@ -55,26 +46,25 @@ void IqLinkPresenter::Visualize(const std::vector<std::vector<unsigned long long
 		Visualize(solution);
 	}
 }
-void IqLinkPresenter::Visualize(std::vector<unsigned long long>& solution)
+void IqLinkPresenter::Visualize(const std::vector<unsigned long long>& solution)
 {
-#ifdef WIN32
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	
-	// Set buffer size
-	COORD c = { _width, _height };
-	if (!SetConsoleScreenBufferSize(hStdout, c))
-	{
-		cout << "SetConsoleScreenBufferSize: " << GetLastError() << endl;
-		return;
-	}
+	//// Set buffer size
+	//COORD c = { _width, _height };
+	//if (!SetConsoleScreenBufferSize(hStdout, c))
+	//{
+	//	cout << "SetConsoleScreenBufferSize: " << GetLastError() << endl;
+	//	return;
+	//}
 
-	// Set window size
-	SMALL_RECT r = {0, 0, _width - 1, _height  - 1};
-	if (!SetConsoleWindowInfo(hStdout, TRUE, &r))
-	{
-		cout << "SetConsoleWindowInfo: " << GetLastError() << endl;
-		return;
-	}
+	//// Set window size
+	//SMALL_RECT r = {0, 0, _width - 1, _height  - 1};
+	//if (!SetConsoleWindowInfo(hStdout, TRUE, &r))
+	//{
+	//	cout << "SetConsoleWindowInfo: " << GetLastError() << endl;
+	//	return;
+	//}
 	
 	// Clear screen
 	system("cls");
@@ -83,8 +73,7 @@ void IqLinkPresenter::Visualize(std::vector<unsigned long long>& solution)
 	for_each(solution.begin(), solution.end(), [&](auto ull) { DisplayPin(hStdout, ull); });
 	
 	// Wait till key is pressed
-	system("pause");
-#endif
+	//Sleep(500);
 }
 void IqLinkPresenter::DisplayPin(HANDLE h, unsigned long long pin)
 {
@@ -189,20 +178,34 @@ SHORT IqLinkPin::GetY(PinId id)
 	}
 }
 void IqLinkPin::Display(HANDLE h, PieceColor c6, PieceColor c5, PieceColor c4, PieceColor c3, PieceColor c2, PieceColor c1, PieceColor c0)
-{
-	// Only print 0 .. 5 and center
+{	
+	//			     2 --- 1   
+	//			    / \   / \	
+	//			   /   \ /   \	
+	//			  3 --- A --- 0
+	//			   \   / \   /	
+	//			    \ /	  \ /	
+	//			     4 --- 5	
+	
+	COORD center = { _x, _y }, dir0 = { _x + 6 , _y }, dir1 = { _x + 3 , _y - 3 }, dir2 = { _x - 3 , _y - 3 }, dir3 = { _x - 6 , _y }, dir4 = { _x - 3 , _y + 3 }, dir5 = { _x + 3 , _y + 3 };
+	DisplayEdge(h, center, c6, L'a' + (wchar_t)c6);
+	DisplayEdge(h, dir0, c0, L'a' + (wchar_t)c0);
+	DisplayEdge(h, dir1, c1, L'a' + (wchar_t)c1);
+	DisplayEdge(h, dir2, c2, L'a' + (wchar_t)c2);
+	DisplayEdge(h, dir3, c3, L'a' + (wchar_t)c3);
+	DisplayEdge(h, dir4, c4, L'a' + (wchar_t)c4);
+	DisplayEdge(h, dir5, c5, L'a' + (wchar_t)c5);
 }
-
-//	// 12 lines + center	
-//	//			     2 --- 1   
-//	//			    / \   / \	
-//	//			   /   \ /   \	
-//	//			  3 --- A --- 0
-//	//			   \   / \   /	
-//	//			    \ /	  \ /	
-//	//			     4 --- 5	
-//								   
-//	std::vector<COORD> s_vCenters =
-//	
-//	SetConsoleTextAttribute(h, (WORD)c6);
-//}
+void IqLinkPin::DisplayEdge(HANDLE h, COORD xy, PieceColor color, wchar_t ch)
+{
+	if (color != PieceColor::NoColor)
+	{
+		if(SetConsoleCursorPosition(h, xy))
+		{
+			if (SetConsoleTextAttribute(h, (WORD)15))
+			{
+				std::wcout << ch;
+			}
+		}
+	}
+}

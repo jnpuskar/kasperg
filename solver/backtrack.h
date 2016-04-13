@@ -12,6 +12,7 @@ public:
 	~CIqLinkBackTrack() {}
 	void Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces);
 	std::vector<std::vector<unsigned long long> > GetSolutions() const { return _solutions; }
+	void ShowPieces(std::vector<unsigned long> pieces);
 private:
 	unsigned char									_positions;
 	std::vector<std::vector<unsigned long long> >	_solutions;

@@ -7,37 +7,23 @@
 // Rotate character val by n left-shift this is mod 6!!!
 unsigned long long RotateCounterClockWise(unsigned long long val, unsigned char shift)
 {
-	// Detect center occupance bit 7 and do not rotate in such case
-	if ((val & 0b01000000) != 0)
-	{
-		// No rotation for center
-		return val;
-	}
 	unsigned char shiftmod = shift % 6;
-	return (val << shiftmod) | (val >> ( 6 - shiftmod));
+	unsigned long long temp = val & 0b00111111;
+	return (val & 0b01000000) | (0b00111111 & (temp << shiftmod) | (temp >> ( 6 - shiftmod)));
 }
 
 // Rotate character val by n right-shift this is mod 6!!!
 unsigned long long RotateClockWise(unsigned long long val, unsigned char shift)
 {
-	// Detect center occupance bit 7 and do not rotate in such case
-	if ((val & 0b01000000) != 0)
-	{
-		// No rotation for center
-		return val;
-	}
 	unsigned char shiftmod = shift % 6;
-	return (val >> shiftmod) | (val << (6 - shiftmod));
+	unsigned long long temp = val & 0b00111111;
+	return (val & 0b01000000) | (0b00111111 & (temp >> shiftmod) | (temp << (6 - shiftmod)));
 }
 unsigned long long Flip(unsigned long long val)
 {
-	// Detect center occupance bit 7 and do not rotate in such case
-	if ((val & 0b01000000) != 0)
-	{
-		// No rotation for center
-		return val;
-	}
-
+	// Detect center occupance 
+	unsigned long long bit6 = (val & 0b01000000);
+	
 	// Bits 0 and 3 stay, bits 2 flips with 4, bit 1 flips with 5
 	unsigned long long bit2 = val & 0b00000100;
 	unsigned long long bit4 = val & 0b00010000;
@@ -48,7 +34,7 @@ unsigned long long Flip(unsigned long long val)
 	unsigned long long bit0 = val & 0b00000001;
 	unsigned long long bit3 = val & 0b00001000;
 
-	return (bit1 << 4) | (bit2 << 2) | bit3 | (bit4 >> 2) | (bit5 >> 4) | bit0;
+	return bit6 | (bit1 << 4) | (bit2 << 2) | bit3 | (bit4 >> 2) | (bit5 >> 4) | bit0;
 }
 Direction RotateCounterClockWise(Direction dir, unsigned char shift)
 {
@@ -68,7 +54,7 @@ Direction RotateClockWise(Direction dir, unsigned char shift)
 Direction Inverse(Direction dir)
 {
 	unsigned char d = (unsigned char)dir;
-	return (Direction)(d % 6);
+	return (Direction)((d + 3) % 6);
 }
 Direction Flip(Direction dir)
 {
@@ -237,7 +223,7 @@ bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>&
 {
 	// Find existing pin1 in occupance that has the same PinId as pin2
 	auto it = std::find_if(occupance.begin(), occupance.end(), [=](auto occpin) { return  ((pin2 & (0b11111 << 28)) == (occpin & (0b11111 << 28))); });
-	if (it != occupance.end())
+	if (it == occupance.end())
 	{
 		return false;
 	}

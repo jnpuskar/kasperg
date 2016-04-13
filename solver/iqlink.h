@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <string>
 #include <algorithm>
 
 // IQ LINK game representation - place 12 pieces with 36 PIN openings on a board with only 24 PINs
@@ -102,6 +103,20 @@ enum class PieceColor : unsigned char
 	Yellow
 };
 
+const std::vector<std::wstring> s_colornames = { L"NoColor",
+											L"LightBlue",
+											L"DarkBlue",
+											L"DarkPurple",
+											L"LightPurple",
+											L"DarkGreen",
+											L"LightGreen",
+											L"Green",
+											L"LightPink",
+											L"DarkPink",
+											L"Red",
+											L"Orange",
+											L"Yellow" };
+
 // 12 Piece definitions - each spans 3 PINS
 // Take 1st PIN and place the piece in such a way that the 2nd PIN is in direction 0. 
 // Mark direction of the piece between 1st and 2nd(3 bits) and 2nd and 3rd PIN (3bits) 
@@ -132,6 +147,9 @@ const unsigned long RedPiece = MakePiece(PieceColor::Red, 0b01000001, 0b00111101
 const unsigned long OrangePiece = MakePiece(PieceColor::Orange, 0b01000001, 0b00111110, 0b01100000, Direction::East, Direction::NorthWest);
 const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0b00110111, 0b00111111, 0b00111011, Direction::East, Direction::NorthEast);
 
+inline std::wstring PieceName(unsigned long piece) {
+	return s_colornames.at((piece >> 27));
+}
 // At the given Pin Rotate piece and morph its pin flags and directions
 // Values 0 - 5   = rotate around 1st piece-pin
 //        6 - 11  = rotate around 2nd piece-pin 
@@ -167,17 +185,19 @@ inline unsigned long long MakeEmptyPin(PinId id)
 {
 	return MakePin(id, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor, PieceColor::NoColor);
 }
-
+inline wchar_t PinIdName(unsigned long long pin) {
+	return L'A' + (wchar_t)(pin >> 28);
+}
 inline unsigned long long MakePinWithPiece(PinId id, PieceColor color, unsigned char PiecePin)
 {
 	return MakePin(id, 
 		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // center
-		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // SE
-		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // SW
-		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // W
-		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // NW
-		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color, // NE
-		((PiecePin & 0b01000000) == 0) ? PieceColor::NoColor : color);// E
+		((PiecePin & 0b00100000) == 0) ? PieceColor::NoColor : color, // SE
+		((PiecePin & 0b00010000) == 0) ? PieceColor::NoColor : color, // SW
+		((PiecePin & 0b00001000) == 0) ? PieceColor::NoColor : color, // W
+		((PiecePin & 0b00000100) == 0) ? PieceColor::NoColor : color, // NW
+		((PiecePin & 0b00000010) == 0) ? PieceColor::NoColor : color, // NE
+		((PiecePin & 0b00000001) == 0) ? PieceColor::NoColor : color);// E
 }
 
 

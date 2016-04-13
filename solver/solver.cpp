@@ -23,7 +23,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	// Find all solutions of the problem
 	solver.Solve(occupance, pieces);
-
+	
 	// Get computed solutions 
 	std::vector<std::vector<unsigned long long> > solutions = solver.GetSolutions();
 
