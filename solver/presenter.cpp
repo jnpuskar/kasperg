@@ -102,41 +102,41 @@ SHORT IqLinkPin::GetX(PinId id)
 	{
 	case PinId::A:
 	case PinId::M:
-		return 20;
+		return 10;
 	case PinId::B:
 	case PinId::N:
-		return 36;
+		return 20;
 	case PinId::C:
 	case PinId::O:
-		return 52;
+		return 30;
 	case PinId::D:
 	case PinId::P:
-		return 68;
+		return 40;
 	case PinId::E:
 	case PinId::Q:
-		return 84;
+		return 50;
 	case PinId::F:
 	case PinId::R:
-		return 100;
+		return 60;
 
 	case PinId::G:
 	case PinId::S:
-		return 12;
+		return 4;
 	case PinId::H:
 	case PinId::T:
-		return 28;
+		return 14;
 	case PinId::I:
 	case PinId::U:
-		return 44;
+		return 24;
 	case PinId::J:
 	case PinId::V:
-		return 60;
+		return 34;
 	case PinId::K:
 	case PinId::W:
-		return 76;
+		return 44;
 	case PinId::L:
 	case PinId::X:
-		return 92;
+		return 54;
 	default:
 		return 0;
 	}
@@ -151,43 +151,45 @@ SHORT IqLinkPin::GetY(PinId id)
 	case PinId::D:
 	case PinId::E:
 	case PinId::F:
-		return 4;
+		return 3;
 	case PinId::G:
 	case PinId::H:
 	case PinId::I:
 	case PinId::J:
 	case PinId::K:
 	case PinId::L:
-		return 12;
+		return 8;
 	case PinId::M:
 	case PinId::N:
 	case PinId::O:
 	case PinId::P:
 	case PinId::Q:
 	case PinId::R:
-		return 20;
+		return 13;
 	case PinId::S:
 	case PinId::T:
 	case PinId::U:
 	case PinId::V:
 	case PinId::W:
 	case PinId::X:
-		return 28;
+		return 18;
 	default:
 		return 0;
 	}
 }
 void IqLinkPin::Display(HANDLE h, PieceColor c6, PieceColor c5, PieceColor c4, PieceColor c3, PieceColor c2, PieceColor c1, PieceColor c0)
 {	
-	//			     2 --- 1   
-	//			    / \   / \	
-	//			   /   \ /   \	
-	//			  3 --- A --- 0
-	//			   \   / \   /	
-	//			    \ /	  \ /	
-	//			     4 --- 5	
-	
-	COORD center = { _x, _y }, dir0 = { _x + 6 , _y }, dir1 = { _x + 3 , _y - 3 }, dir2 = { _x - 3 , _y - 3 }, dir3 = { _x - 6 , _y }, dir4 = { _x - 3 , _y + 3 }, dir5 = { _x + 3 , _y + 3 };
+	//			    2   1   
+	//
+	//			  3   A   0  3   B   0 
+	//
+	//			    4   5	
+	//        2   1
+	//
+	//      3   G   0
+	//
+	//        4   5
+	COORD center = { _x, _y }, dir0 = { _x + 4  , _y }, dir1 = { _x + 2 , _y - 2 }, dir2 = { _x - 2 , _y - 2 }, dir3 = { _x - 4 , _y }, dir4 = { _x - 2 , _y + 2 }, dir5 = { _x + 2 , _y + 2 };
 	DisplayEdge(h, center, c6, L'a' + (wchar_t)c6);
 	DisplayEdge(h, dir0, c0, L'a' + (wchar_t)c0);
 	DisplayEdge(h, dir1, c1, L'a' + (wchar_t)c1);
@@ -202,7 +204,7 @@ void IqLinkPin::DisplayEdge(HANDLE h, COORD xy, PieceColor color, wchar_t ch)
 	{
 		if(SetConsoleCursorPosition(h, xy))
 		{
-			if (SetConsoleTextAttribute(h, (WORD)15))
+			if (SetConsoleTextAttribute(h, (WORD)color + 1))
 			{
 				std::wcout << ch;
 			}

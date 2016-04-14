@@ -24,38 +24,37 @@ void CIqLinkBackTrack::Solve(std::vector<unsigned long long> occupance, std::vec
 	// For all available pieces
 	for (auto piece: pieces)
 	{
-		//Progress Bar
-		if (pieces.size() == 12)
-		{
-			std::cout << "X";
-		}
-		// On all available PINs
+		// For all pins
 		for (auto pin : occupance)
 		{
-			if (pieces.size() == 12)
+			// Reduce to pins next to full pins or partially empty pins - this tremendously reduces state space. Without it will run forever...
+			if (PinIsAdjacent(pin, occupance))
 			{
-				std::cout << "-";
-			}
-			// Place a piece in every possible position (rotation/flip)
-			for ( unsigned char pos = 0; pos < _positions; pos++)
-			{
-				// And if successfull provide new occupance 
-				std::vector<unsigned long long> next_occupance;
-				if (IsPlaceable(occupance, next_occupance, pin, piece, pos))
+				// Place a piece in every possible position (rotation/flip)
+				for (unsigned char pos = 0; pos < _positions; pos++)
 				{
-					// Tracing
-					std::wstringstream str;
-					str << L" Piece " << PieceName(piece).c_str() << L", Pin " << PinIdName(pin) << L", Position " << (int)pos << ", Level " << pieces.size() << std::endl;
-					OutputDebugString(str.str().c_str());
+					// And if successfull provide new occupance 
+					std::vector<unsigned long long> next_occupance;
+					if (IsPlaceable(occupance, next_occupance, pin, piece, pos))
+					{
+						// Tracing
+						std::wstringstream str;
+						str << L" Piece " << PieceName(piece).c_str() << L", Pin " << PinIdName(pin) << L", Position " << (int)pos << ", Level " << pieces.size() << std::endl;
+						OutputDebugString(str.str().c_str());
 
-					// Remove used piece from pieces
-					std::vector<unsigned long> next_pieces;
-					std::copy_if(pieces.begin(), pieces.end(),std::back_inserter(next_pieces), [=](auto p) { return !(p == piece); });
-						
-					// Recursively iterate with new occupance and pieces until we consume all pieces or hit the non-placeable situation
-					Solve(next_occupance, next_pieces);
+						// Display the move
+						/*IqLinkPresenter pr;
+						pr.Visualize(next_occupance);
+*/
+						// Remove used piece from pieces
+						std::vector<unsigned long> next_pieces;
+						std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(next_pieces), [=](auto p) { return !(p == piece); });
+
+						// Recursively iterate with new occupance and pieces until we consume all pieces or hit the non-placeable situation
+						Solve(next_occupance, next_pieces);
+					}
 				}
-			}			
+			}
 		}
 	}
 }

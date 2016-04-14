@@ -266,6 +266,87 @@ void UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupanc
 	// Find the pin with same id and make its value pin
 	std::transform(occupance.begin(), occupance.end(), occupance.begin(), [=](auto ull)	{ return ((pin & (0b11111 << 28)) == (ull & (0b11111 << 28))) ? pin : ull; });
 }
+bool IsPinEmpty(unsigned long long pin)
+{
+	//   -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
+	//   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
+	unsigned long long c6 = (pin & (0b1111 << 24)) >> 24;
+	unsigned long long c5 = (pin & (0b1111 << 20)) >> 20;
+	unsigned long long c4 = (pin & (0b1111 << 16)) >> 16;
+	unsigned long long c3 = (pin & (0b1111 << 12)) >> 12;
+	unsigned long long c2 = (pin & (0b1111 << 8)) >> 8;
+	unsigned long long c1 = (pin & (0b1111 << 4)) >> 4;
+	unsigned long long c0 = (pin & 0b1111);
+	return c6 == 0 && c5 == 0 && c4 == 0 && c3 == 0 && c2 == 0 && c1 == 0 && c0 == 0;
+}
+bool PinFull(unsigned long long pin)
+{
+	//   -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
+	//   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
+	unsigned long long c6 = (pin & (0b1111 << 24)) >> 24;
+	unsigned long long c5 = (pin & (0b1111 << 20)) >> 20;
+	unsigned long long c4 = (pin & (0b1111 << 16)) >> 16;
+	unsigned long long c3 = (pin & (0b1111 << 12)) >> 12;
+	unsigned long long c2 = (pin & (0b1111 << 8)) >> 8;
+	unsigned long long c1 = (pin & (0b1111 << 4)) >> 4;
+	unsigned long long c0 = (pin & 0b1111);
+	return (c6 != 0 && (c0 != 0 || c1 != 0 || c2 != 0 || c3 != 0 || c4 != 0 || c5 != 0)) || 
+		(c0 != 0 && c1 != 0 && c2 != 0 && c3 != 0 && c4 != 0 && c5 != 0 );
+}
+unsigned long long GetPin(PinId id, const std::vector<unsigned long long>& occupance)
+{
+	// Find existing pin1 in occupance that has the same PinId as pin2
+	auto it = std::find_if(occupance.begin(), occupance.end(), [=](auto occpin) { return  id == (PinId)((occpin & (0b11111 << 28)) >> 28); });
+	if (it == occupance.end())
+	{
+		return 0;
+	}
+	unsigned long long pin = *it;
+	return pin;
+}
+bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>& occupance)
+{
+	bool fEmpty = true;
+	std::for_each(occupance.begin(), occupance.end(), [&](auto pin) { fEmpty = (fEmpty) ? IsPinEmpty(pin) : fEmpty; });
+	// Empty game means all pins are to be tried
+	if (fEmpty)
+	{
+		return true;
+	}
+
+	// We already placed a piece. Consider only neighbours. And must not be full.
+	if (PinFull(pin))
+	{
+		return false;
+	}
+	if (!IsPinEmpty(pin))
+	{
+		return true;
+	}
+	
+	// We are empty pin. Get neighbours to see.
+	PinId id = (PinId)((pin & (0b11111 << 28)) >> 28);
+
+	PinId ide = s_neighbourhood.find(id)->second.at((size_t)Direction::East);
+	unsigned long long pine = GetPin(ide, occupance);
+	PinId idne = s_neighbourhood.find(id)->second.at((size_t)Direction::NorthEast);
+	unsigned long long pinne = GetPin(idne, occupance);
+	PinId idnw = s_neighbourhood.find(id)->second.at((size_t)Direction::NorthWest);
+	unsigned long long pinnw = GetPin(idnw, occupance);
+	PinId idw = s_neighbourhood.find(id)->second.at((size_t)Direction::West);
+	unsigned long long pinw = GetPin(idw, occupance);
+	PinId idsw = s_neighbourhood.find(id)->second.at((size_t)Direction::SouthWest);
+	unsigned long long pinsw = GetPin(idsw, occupance);
+	PinId idse = s_neighbourhood.find(id)->second.at((size_t)Direction::SouthEast);
+	unsigned long long pinse = GetPin(idse, occupance);
+
+	return PinFull(pine) || !IsPinEmpty(pine) ||
+		PinFull(pinne) || !IsPinEmpty(pinne) ||
+		PinFull(pinnw) || !IsPinEmpty(pinnw) ||
+		PinFull(pinw) || !IsPinEmpty(pinw) ||
+		PinFull(pinsw) || !IsPinEmpty(pinsw) ||
+		PinFull(pinse) || !IsPinEmpty(pinse);
+}
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<unsigned long long>& new_occupance, unsigned long long pin, unsigned long piece, unsigned char rotation)
 {

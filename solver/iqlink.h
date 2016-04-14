@@ -204,6 +204,7 @@ inline unsigned long long MakePinWithPiece(PinId id, PieceColor color, unsigned 
 // Checks whether we can insert a piece on this pin
 bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>& occupance, unsigned long long& pin12);
 void UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupance);
+bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>& occupance);
 
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<unsigned long long>& new_occupance, unsigned long long pin, unsigned long piece, unsigned char rotation);
