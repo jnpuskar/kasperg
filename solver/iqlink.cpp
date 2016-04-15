@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "iqlink.h"
+#include "presenter.h"
+
 #include <set>
 #include <vector>
 #include <algorithm>
@@ -110,7 +112,7 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 	unsigned char rotation = position % 6;
 
 	// Flip the piece for position 18 and up
-	if (position >= 18)
+	if (position >= 6)
 	{
 		ullpiecepin1 = Flip(ullpiecepin1);
 		ullpiecepin2 = Flip(ullpiecepin2);
@@ -124,98 +126,114 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 	ullpiecepin2 = RotateCounterClockWise(ullpiecepin2, rotation);
 	ullpiecepin3 = RotateCounterClockWise(ullpiecepin3, rotation);
 
-	// Pin1 with Id is 
-	switch (position)
-	{	
-	case 0: // 0 - 5  rotate around 1st piece-pin
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 18: // 18 - 23 = flip & rotate around 1st piece-pin
-	case 19:
-	case 20:
-	case 21:
-	case 22:
-	case 23:
-		dir12 = RotateCounterClockWise(dir12, rotation);
-		dir23 = RotateCounterClockWise(dir23, rotation);
-		// Find new pins
-		if(!FindPin(pin1Id, dir12, pin2Id))
-		{
-			return false;
-		}
-		if (!FindPin(pin2Id, dir23, pin3Id))
-		{
-			return false;
-		}
-		// Costruct new Pins occupied by this piece in the given position
-		pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin1);
-		pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
-		pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
-		break;
-
-	case 6:// 6 - 11  = rotate around 2nd piece-pin 
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:		
-	case 24:// 24 - 29 = flip & rotate around 2nd piece-pin
-	case 25:
-	case 26:
-	case 27:
-	case 28:
-	case 29:		
-		dir12 = RotateCounterClockWise(Inverse(dir12), rotation); // pin1Id is the middle pin
-		dir23 = RotateCounterClockWise(dir23, rotation);
-		// Find new pins - pin1Id is in the middle
-		if (!FindPin(pin1Id, dir12, pin2Id))
-		{
-			return false;
-		}
-		if (!FindPin(pin1Id, dir23, pin3Id))
-		{
-			return false;
-		}
-		// Costruct new Pins occupied by this piece in the given position
-		pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin2);
-		pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin1);
-		pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
-		break;
-	case 12:// 12 - 17 = rotate around 3rd piece - pin
-	case 13:
-	case 14:
-	case 15:
-	case 16:
-	case 17:		
-	case 30:// 30 - 35 = flip & rotate around 3rd piece-pin  
-	case 31:
-	case 32:
-	case 33:
-	case 34:
-	case 35:		
-		dir12 = RotateCounterClockWise(Inverse(dir12), rotation); // pin1Id is the most right one
-		dir23 = RotateCounterClockWise(Inverse(dir23), rotation);
-		// Find new pins - pin1Id is the most right one
-		if (!FindPin(pin1Id, dir23, pin2Id))
-		{
-			return false;
-		}
-		if (!FindPin(pin2Id, dir12, pin3Id))
-		{
-			return false;
-		}
-		// Costruct new Pins occupied by this piece in the given position
-		pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin3);
-		pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
-		pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin1);		
-		break;
-
-	default:
+	dir12 = RotateCounterClockWise(dir12, rotation);
+	dir23 = RotateCounterClockWise(dir23, rotation);
+	// Find new pins
+	if (!FindPin(pin1Id, dir12, pin2Id))
+	{
 		return false;
 	}
+	if (!FindPin(pin2Id, dir23, pin3Id))
+	{
+		return false;
+	}
+	// Costruct new Pins occupied by this piece in the given position
+	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin1);
+	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
+	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
+
+	//// Pin1 with Id is 
+	//switch (position)
+	//{	
+	//case 0: // 0 - 5  rotate around 1st piece-pin
+	//case 1:
+	//case 2:
+	//case 3:
+	//case 4:
+	//case 5:
+	//case 18: // 18 - 23 = flip & rotate around 1st piece-pin
+	//case 19:
+	//case 20:
+	//case 21:
+	//case 22:
+	//case 23:
+	//	dir12 = RotateCounterClockWise(dir12, rotation);
+	//	dir23 = RotateCounterClockWise(dir23, rotation);
+	//	// Find new pins
+	//	if(!FindPin(pin1Id, dir12, pin2Id))
+	//	{
+	//		return false;
+	//	}
+	//	if (!FindPin(pin2Id, dir23, pin3Id))
+	//	{
+	//		return false;
+	//	}
+	//	// Costruct new Pins occupied by this piece in the given position
+	//	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin1);
+	//	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
+	//	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
+	//	break;
+
+	//case 6:// 6 - 11  = rotate around 2nd piece-pin 
+	//case 7:
+	//case 8:
+	//case 9:
+	//case 10:
+	//case 11:		
+	//case 24:// 24 - 29 = flip & rotate around 2nd piece-pin
+	//case 25:
+	//case 26:
+	//case 27:
+	//case 28:
+	//case 29:		
+	//	dir12 = RotateCounterClockWise(Inverse(dir12), rotation); // pin1Id is the middle pin
+	//	dir23 = RotateCounterClockWise(dir23, rotation);
+	//	// Find new pins - pin1Id is in the middle
+	//	if (!FindPin(pin1Id, dir12, pin2Id))
+	//	{
+	//		return false;
+	//	}
+	//	if (!FindPin(pin1Id, dir23, pin3Id))
+	//	{
+	//		return false;
+	//	}
+	//	// Costruct new Pins occupied by this piece in the given position
+	//	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin2);
+	//	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin1);
+	//	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
+	//	break;
+	//case 12:// 12 - 17 = rotate around 3rd piece - pin
+	//case 13:
+	//case 14:
+	//case 15:
+	//case 16:
+	//case 17:		
+	//case 30:// 30 - 35 = flip & rotate around 3rd piece-pin  
+	//case 31:
+	//case 32:
+	//case 33:
+	//case 34:
+	//case 35:		
+	//	dir12 = RotateCounterClockWise(Inverse(dir12), rotation); // pin1Id is the most right one
+	//	dir23 = RotateCounterClockWise(Inverse(dir23), rotation);
+	//	// Find new pins - pin1Id is the most right one
+	//	if (!FindPin(pin1Id, dir23, pin2Id))
+	//	{
+	//		return false;
+	//	}
+	//	if (!FindPin(pin2Id, dir12, pin3Id))
+	//	{
+	//		return false;
+	//	}
+	//	// Costruct new Pins occupied by this piece in the given position
+	//	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin3);
+	//	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
+	//	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin1);		
+	//	break;
+
+	//default:
+	//	return false;
+	//}
 	return true;
 }
 
@@ -373,4 +391,111 @@ bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<u
 	UpdatePin(newpin3, new_occupance);
 		
 	return true;
+}
+bool PlacePiece(std::vector<unsigned long long>& occupance, unsigned long long pin, unsigned long piece, unsigned char rotation)
+{
+	// Rotate the pice to a given position. Get the possibly occupied pins with occupance masks
+	unsigned long long pin1, pin2, pin3;
+	if (!RotatePiece(pin, piece, rotation, pin1, pin2, pin3))
+	{
+		return false;
+	}
+
+	// Check possible placement and get the new pins
+	unsigned long long newpin1, newpin2, newpin3;
+	if (!(IsAvailable(pin1, occupance, newpin1) && IsAvailable(pin2, occupance, newpin2) && IsAvailable(pin3, occupance, newpin3)))
+	{
+		return false;
+	}
+
+	// Update the new occupance
+	UpdatePin(newpin1, occupance);
+	UpdatePin(newpin2, occupance);
+	UpdatePin(newpin3, occupance);
+
+	return true;
+}
+bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned long>& pieces, unsigned long index)
+{
+	std::vector<unsigned long> all_pieces = { LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, DarkGreenPiece,LightGreenPiece,
+		GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
+
+	std::vector<unsigned long long> temp_occupance = { MakeEmptyPin(PinId::A), MakeEmptyPin(PinId::B), MakeEmptyPin(PinId::C), MakeEmptyPin(PinId::D), MakeEmptyPin(PinId::E), MakeEmptyPin(PinId::F),
+		MakeEmptyPin(PinId::G),	MakeEmptyPin(PinId::H),	MakeEmptyPin(PinId::I),	MakeEmptyPin(PinId::J),	MakeEmptyPin(PinId::K),	MakeEmptyPin(PinId::L),
+		MakeEmptyPin(PinId::M), MakeEmptyPin(PinId::N), MakeEmptyPin(PinId::O), MakeEmptyPin(PinId::P), MakeEmptyPin(PinId::Q), MakeEmptyPin(PinId::R),
+		MakeEmptyPin(PinId::S), MakeEmptyPin(PinId::T), MakeEmptyPin(PinId::U), MakeEmptyPin(PinId::V), MakeEmptyPin(PinId::W), MakeEmptyPin(PinId::X) };
+
+	occupance = temp_occupance;
+
+	switch (index)
+	{
+		case 51:
+		{
+			/*const unsigned long LightBluePiece = MakePiece(PieceColor::LightBlue, 0b00101111, 0b00111111, 0b01000100, Direction::East, Direction::SouthEast);
+			const unsigned long DarkBluePiece = MakePiece(PieceColor::DarkBlue, 0b01000001, 0b01001100, 0b00110111, Direction::East, Direction::NorthWest);
+			const unsigned long DarkPurplePiece = MakePiece(PieceColor::DarkPurple, 0b01000001, 0b00111111, 0b00111110, Direction::East, Direction::NorthEast);
+			const unsigned long LightPurplePiece = MakePiece(PieceColor::LightPurple, 0b01000001, 0b00111001, 0b01001000, Direction::East, Direction::East);
+			const unsigned long DarkGreenPiece = MakePiece(PieceColor::DarkGreen, 0b01000001, 0b01001100, 0b00111011, Direction::East, Direction::NorthWest);
+			const unsigned long LightGreenPiece = MakePiece(PieceColor::LightGreen, 0b01000001, 0b00111111, 0b00111011, Direction::East, Direction::East);
+			const unsigned long GreenPiece = MakePiece(PieceColor::Green, 0b01000001, 0b00111111, 0b00111101, Direction::East, Direction::East);
+			const unsigned long LightPinkPiece = MakePiece(PieceColor::LightPink, 0b00011111, 0b00111111, 0b01000100, Direction::East, Direction::SouthEast);
+			const unsigned long DarkPinkPiece = MakePiece(PieceColor::DarkPink, 0b01000001, 0b00111110, 0b01000100, Direction::East, Direction::SouthEast);
+			const unsigned long RedPiece = MakePiece(PieceColor::Red, 0b01000001, 0b00111101, 0b00111110, Direction::East, Direction::SouthWest);
+			const unsigned long OrangePiece = MakePiece(PieceColor::Orange, 0b01000001, 0b00111110, 0b01100000, Direction::East, Direction::NorthWest);
+			const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0b00110111, 0b00111111, 0b00111011, Direction::East, Direction::NorthEast);*/
+			// Display the move
+			
+			IqLinkPresenter pr;
+
+			unsigned long long pinB = GetPin(PinId::B, occupance);
+			if (PlacePiece(occupance, pinB, GreenPiece, 18)) // Flip GreenPiece and do not rotate
+			{
+				unsigned long long pinD = GetPin(PinId::D, occupance);
+				if (PlacePiece(occupance, pinD, LightPurplePiece, 5)) // Rotate by 5 LightPurplePiece around 1st pin
+				{
+					unsigned long long pinJ = GetPin(PinId::J, occupance);
+					if (PlacePiece(occupance, pinJ, RedPiece, 18)) // Flip RedPiece and do not rotate
+					{
+
+						unsigned long long pinL = GetPin(PinId::L, occupance);
+						if (PlacePiece(occupance, pinL, LightBluePiece, 20)) // Flip LightBluePiece and do not rotate by 2 around 1st
+						{
+							unsigned long long pinP = GetPin(PinId::P, occupance);
+							if (PlacePiece(occupance, pinP, LightPinkPiece, 20)) // Flip LightPinkPiece and rotate by 2 around 1st
+							{
+								// Resuse pinP
+								if (PlacePiece(occupance, pinP, LightGreenPiece, 3)) // Rotate LightGreenPiece by 3 around 1st
+								{
+									// Reuse pinL
+									if (PlacePiece(occupance, pinL, OrangePiece, 22)) // Flip OrangePiece and rotate by 4 around 1st
+									{
+										// Display the move
+										IqLinkPresenter pr;
+										pr.Visualize(occupance);
+
+										system("pause");
+
+										// Pieces left
+										std::vector<unsigned long> pieces_51 = { DarkBluePiece, DarkPurplePiece, DarkGreenPiece, DarkPinkPiece, YellowPiece };
+										pieces = pieces_51;
+
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		break;
+	
+		// Empty board		
+		case 0:
+		default:
+			pieces = all_pieces;
+			return true;
+		break;
+	}
+	return false;
 }

@@ -43,9 +43,9 @@ void CIqLinkBackTrack::Solve(std::vector<unsigned long long> occupance, std::vec
 						OutputDebugString(str.str().c_str());
 
 						// Display the move
-						/*IqLinkPresenter pr;
+						IqLinkPresenter pr;
 						pr.Visualize(next_occupance);
-*/
+
 						// Remove used piece from pieces
 						std::vector<unsigned long> next_pieces;
 						std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(next_pieces), [=](auto p) { return !(p == piece); });
@@ -73,6 +73,7 @@ void CIqLinkBackTrack::ShowPieces(std::vector<unsigned long> pieces)
 	// For all available pieces
 	for (auto piece : pieces)
 	{
+		
 		// Place a piece in every possible position (rotation/flip)
 		for (unsigned char pos = 0; pos < _positions; pos++)
 		{
@@ -83,6 +84,13 @@ void CIqLinkBackTrack::ShowPieces(std::vector<unsigned long> pieces)
 				// Display the move
 				IqLinkPresenter pr;
 				pr.Visualize(next_occupance);	
+
+				// Tracing
+				std::wstringstream str;
+				str << L" Piece " << PieceName(piece).c_str() << L", Pin " << PinIdName(pin) << L", Position " << (int)pos << ", Level " << pieces.size() << std::endl;
+				OutputDebugString(str.str().c_str());
+
+				system("pause");
 			}
 			
 		}

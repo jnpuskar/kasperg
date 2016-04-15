@@ -6,8 +6,21 @@
 #include "backtrack.h"
 #include "presenter.h"
 
+void Demo()
+{
+	// Create backtracker instance
+	CIqLinkBackTrack solver(IqLinkPiecePositions);
+	// All Pieces available
+	std::vector<unsigned long> pieces = { LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, DarkGreenPiece,LightGreenPiece,
+		GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
+
+	solver.ShowPieces(pieces);
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	//Demo();
+
 	// Create backtracker instance
 	CIqLinkBackTrack solver(IqLinkPiecePositions);
 
@@ -15,11 +28,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::vector<unsigned long> pieces = {	LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, DarkGreenPiece,LightGreenPiece,
 											GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
 
-	// All PINs are empty
-	std::vector<unsigned long long> occupance =	{ 	MakeEmptyPin(PinId::A), MakeEmptyPin(PinId::B), MakeEmptyPin(PinId::C), MakeEmptyPin(PinId::D), MakeEmptyPin(PinId::E), MakeEmptyPin(PinId::F),
-													MakeEmptyPin(PinId::G),	MakeEmptyPin(PinId::H),	MakeEmptyPin(PinId::I),	MakeEmptyPin(PinId::J),	MakeEmptyPin(PinId::K),	MakeEmptyPin(PinId::L),
-													MakeEmptyPin(PinId::M), MakeEmptyPin(PinId::N), MakeEmptyPin(PinId::O), MakeEmptyPin(PinId::P), MakeEmptyPin(PinId::Q), MakeEmptyPin(PinId::R),
-													MakeEmptyPin(PinId::S), MakeEmptyPin(PinId::T), MakeEmptyPin(PinId::U), MakeEmptyPin(PinId::V), MakeEmptyPin(PinId::W), MakeEmptyPin(PinId::X) };
+	// Select game index
+	std::vector<unsigned long long> occupance;
+	if (!SetupGame(occupance, pieces, 51))
+	{
+		return -1;
+	}
 
 	// Find all solutions of the problem
 	solver.Solve(occupance, pieces);
@@ -33,4 +47,3 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	return 0;
 }
-

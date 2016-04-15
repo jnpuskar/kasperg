@@ -23,6 +23,7 @@ public:
 	static SHORT GetY(PinId id);
 	void Display(HANDLE h, PieceColor c6, PieceColor c5, PieceColor c4, PieceColor c3, PieceColor c2, PieceColor c1, PieceColor c0);
 	void DisplayEdge(HANDLE h, COORD xy, PieceColor color, wchar_t ch);
+	void DisplayCenter(HANDLE h, COORD xy, PieceColor color, wchar_t ch);
 private:
 	PinId _id;
 	SHORT _x;
