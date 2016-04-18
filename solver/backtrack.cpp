@@ -28,7 +28,7 @@ void CIqLinkBackTrack::Solve(std::vector<unsigned long long> occupance, std::vec
 		for (auto pin : occupance)
 		{
 			// Reduce to pins next to full pins or partially empty pins - this tremendously reduces state space. Without it will run forever...
-			if (PinIsAdjacent(pin, occupance))
+			if (PinIsAdjacent(pin, occupance, pieces.size()))
 			{
 				// Place a piece in every possible position (rotation/flip)
 				for (unsigned char pos = 0; pos < _positions; pos++)

@@ -308,8 +308,14 @@ bool PinFull(unsigned long long pin)
 	unsigned long long c2 = (pin & (0b1111 << 8)) >> 8;
 	unsigned long long c1 = (pin & (0b1111 << 4)) >> 4;
 	unsigned long long c0 = (pin & 0b1111);
-	return (c6 != 0 && (c0 != 0 || c1 != 0 || c2 != 0 || c3 != 0 || c4 != 0 || c5 != 0)) || 
-		(c0 != 0 && c1 != 0 && c2 != 0 && c3 != 0 && c4 != 0 && c5 != 0 );
+	
+	// We have to be fast. So no STL container creation. No algorithms. Test if we have 2 non-empty colors present
+	return (c6 != 0 && ((c5 != 0 && c5 != c6) || (c4 != 0 && c4 != c6) || (c3 != 0 && c3 != c6) || (c2 != 0 && c2 != c6) || (c1 != 0 && c1 != c6) || (c0 != 0 && c0 != c6))) ||
+		(c5 != 0 && ((c4 != 0 && c4 != c5) || (c3 != 0 && c3 != c5) || (c2 != 0 && c2 != c5) || (c1 != 0 && c1 != c5) || (c0 != 0 && c0 != c5))) ||
+		(c4 != 0 && ((c3 != 0 && c3 != c4) || (c2 != 0 && c2 != c4) || (c1 != 0 && c1 != c4) || (c0 != 0 && c0 != c4))) ||
+		(c3 != 0 && ((c2 != 0 && c2 != c3) || (c1 != 0 && c1 != c3) || (c0 != 0 && c0 != c3))) ||
+		(c2 != 0 && ((c1 != 0 && c1 != c2) || (c0 != 0 && c0 != c2))) ||
+		(c1 != 0 && (c0 != 0 && c0 != c1));	
 }
 unsigned long long GetPin(PinId id, const std::vector<unsigned long long>& occupance)
 {
@@ -322,48 +328,52 @@ unsigned long long GetPin(PinId id, const std::vector<unsigned long long>& occup
 	unsigned long long pin = *it;
 	return pin;
 }
-bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>& occupance)
+bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>& occupance, const size_t& level)
 {
-	bool fEmpty = true;
-	std::for_each(occupance.begin(), occupance.end(), [&](auto pin) { fEmpty = (fEmpty) ? IsPinEmpty(pin) : fEmpty; });
-	// Empty game means all pins are to be tried
-	if (fEmpty)
+	// This is the begining of the run. Only place pieces around 1st pin A
+	if (level == 12)
 	{
-		return true;
+		return pin == MakeEmptyPin(PinId::A) || 
+			pin == MakeEmptyPin(PinId::B) || 
+			pin == MakeEmptyPin(PinId::C) || 
+			pin == MakeEmptyPin(PinId::G) || 
+			pin == MakeEmptyPin(PinId::H) || 
+			pin == MakeEmptyPin(PinId::N) || 
+			pin == MakeEmptyPin(PinId::S) || 
+			pin == MakeEmptyPin(PinId::M);
 	}
-
-	// We already placed a piece. Consider only neighbours. And must not be full.
+	
+	// Pin is full.
 	if (PinFull(pin))
 	{
 		return false;
 	}
-	if (!IsPinEmpty(pin))
-	{
-		return true;
-	}
-	
-	// We are empty pin. Get neighbours to see.
-	PinId id = (PinId)((pin & (0b11111 << 28)) >> 28);
 
-	PinId ide = s_neighbourhood.find(id)->second.at((size_t)Direction::East);
-	unsigned long long pine = GetPin(ide, occupance);
-	PinId idne = s_neighbourhood.find(id)->second.at((size_t)Direction::NorthEast);
-	unsigned long long pinne = GetPin(idne, occupance);
-	PinId idnw = s_neighbourhood.find(id)->second.at((size_t)Direction::NorthWest);
-	unsigned long long pinnw = GetPin(idnw, occupance);
-	PinId idw = s_neighbourhood.find(id)->second.at((size_t)Direction::West);
-	unsigned long long pinw = GetPin(idw, occupance);
-	PinId idsw = s_neighbourhood.find(id)->second.at((size_t)Direction::SouthWest);
-	unsigned long long pinsw = GetPin(idsw, occupance);
-	PinId idse = s_neighbourhood.find(id)->second.at((size_t)Direction::SouthEast);
-	unsigned long long pinse = GetPin(idse, occupance);
+	return true;
 
-	return PinFull(pine) || !IsPinEmpty(pine) ||
-		PinFull(pinne) || !IsPinEmpty(pinne) ||
-		PinFull(pinnw) || !IsPinEmpty(pinnw) ||
-		PinFull(pinw) || !IsPinEmpty(pinw) ||
-		PinFull(pinsw) || !IsPinEmpty(pinsw) ||
-		PinFull(pinse) || !IsPinEmpty(pinse);
+	//// Pin is not full and contains already some. Ideal candidate.
+	//if (!IsPinEmpty(pin))
+	//{
+	//	return true;
+	//}
+	//
+	//// We are empty pin. Get neighbours to see. If there is a 
+	//PinId id = (PinId)((pin & (0b11111 << 28)) >> 28);
+
+	//PinId ide = s_neighbourhood.find(id)->second.at((size_t)Direction::East);
+	//unsigned long long pine = GetPin(ide, occupance);
+	//PinId idne = s_neighbourhood.find(id)->second.at((size_t)Direction::NorthEast);
+	//unsigned long long pinne = GetPin(idne, occupance);
+	//PinId idnw = s_neighbourhood.find(id)->second.at((size_t)Direction::NorthWest);
+	//unsigned long long pinnw = GetPin(idnw, occupance);
+	//PinId idw = s_neighbourhood.find(id)->second.at((size_t)Direction::West);
+	//unsigned long long pinw = GetPin(idw, occupance);
+	//PinId idsw = s_neighbourhood.find(id)->second.at((size_t)Direction::SouthWest);
+	//unsigned long long pinsw = GetPin(idsw, occupance);
+	//PinId idse = s_neighbourhood.find(id)->second.at((size_t)Direction::SouthEast);
+	//unsigned long long pinse = GetPin(idse, occupance);
+
+	//return !IsPinEmpty(pine) || !IsPinEmpty(pinne) || !IsPinEmpty(pinnw) || !IsPinEmpty(pinw) || !IsPinEmpty(pinsw) || !IsPinEmpty(pinse);
 }
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<unsigned long long>& new_occupance, unsigned long long pin, unsigned long piece, unsigned char rotation)

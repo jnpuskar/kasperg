@@ -41,6 +41,7 @@ void IqLinkPresenter::Visualize(const std::vector<unsigned long long>& solution)
 	
 	// Wait till key is pressed
 	//Sleep(2000);
+	//system("pause");
 }
 void IqLinkPresenter::DisplayPin(HANDLE h, unsigned long long pin)
 {
@@ -147,7 +148,7 @@ SHORT IqLinkPin::GetY(PinId id)
 void IqLinkPin::Display(HANDLE h, PieceColor c6, PieceColor c5, PieceColor c4, PieceColor c3, PieceColor c2, PieceColor c1, PieceColor c0)
 {	
 	//    2   1   
-	//
+	//      
 	//	3   A   0  3   B   0 
 	//
 	//    4   5	
@@ -157,14 +158,68 @@ void IqLinkPin::Display(HANDLE h, PieceColor c6, PieceColor c5, PieceColor c4, P
 	//
 	//         4   5
 
-	COORD center = { _x, _y }, dir0 = { _x + 4  , _y }, dir1 = { _x + 2 , _y - 2 }, dir2 = { _x - 2 , _y - 2 }, dir3 = { _x - 4 , _y }, dir4 = { _x - 2 , _y + 2 }, dir5 = { _x + 2 , _y + 2 };
-	DisplayCenter(h, center, c6, 254);
-	DisplayEdge(h, dir0, c0, 254);
-	DisplayEdge(h, dir1, c1, 254);
-	DisplayEdge(h, dir2, c2, 254);
-	DisplayEdge(h, dir3, c3, 254);
-	DisplayEdge(h, dir4, c4, 254);
-	DisplayEdge(h, dir5, c5, 254);
+	COORD center = { _x, _y }, dir0 = { _x + 4  , _y }, dir1 = { _x + 2 , _y - 2 }, dir2 = { _x - 2 , _y - 2 }, dir3 = { _x - 4 , _y }, dir4 = { _x - 2 , _y + 2 }, dir5 = { _x + 2 , _y + 2 },
+		dir01 = { _x + 3  , _y - 1 }, dir12 = { _x , _y - 2 }, dir23 = { _x - 3  , _y - 1 }, dir34 = { _x - 3  , _y + 1 }, dir45 = { _x  , _y + 2 }, dir50 = { _x + 3, _y + 1 },
+		dirc0 = { _x + 2  , _y }, dirc1 = { _x + 1  , _y - 1 }, dirc2 = { _x - 1 , _y - 1 }, dirc3 = { _x - 2  , _y }, dirc4 = { _x - 1  , _y + 1 }, dirc5 = { _x + 1  , _y + 1 };
+
+	DisplayCenter(h, center, c6, L'*');
+	DisplayEdge(h, dir0, c0, L'*');
+	DisplayEdge(h, dir1, c1, L'*');
+	DisplayEdge(h, dir2, c2, L'*');
+	DisplayEdge(h, dir3, c3, L'*');
+	DisplayEdge(h, dir4, c4, L'*');
+	DisplayEdge(h, dir5, c5, L'*');
+
+	if (c0 == c1 && (c0 != c6))
+	{
+		DisplayEdge(h, dir01, c0, L'\\');
+	}
+	if (c3 == c4 && (c3 != c6))
+	{
+		DisplayEdge(h, dir34, c3, L'\\');
+	}
+	if (c1 == c2 && (c1 != c6))
+	{
+		DisplayEdge(h, dir12, c2, L'-');
+	}
+	if (c4 == c5 && (c4 != c6))
+	{
+		DisplayEdge(h, dir45, c4, L'-');
+	}
+	if (c2 == c3 && (c2 != c6))
+	{
+		DisplayEdge(h, dir23, c2, L'/');
+	}
+	if (c5 == c0 && (c5 != c6))
+	{
+		DisplayEdge(h, dir50, c5, L'/');
+	}
+
+	if (c6 == c0)
+	{
+		DisplayEdge(h, dirc0, c6, L'-');
+	}
+	if (c6 == c1)
+	{
+		DisplayEdge(h, dirc1, c6, L'/');
+	}
+	if (c6 == c2)
+	{
+		DisplayEdge(h, dirc2, c6, L'\\');
+	}
+	if (c6 == c3)
+	{
+		DisplayEdge(h, dirc3, c6, L'-');
+	}
+	if (c6 == c4)
+	{
+		DisplayEdge(h, dirc4, c6, L'/');
+	}
+	if (c6 == c5)
+	{
+		DisplayEdge(h, dirc5, c6, L'\\');
+	}
+
 }
 void IqLinkPin::DisplayEdge(HANDLE h, COORD xy, PieceColor color, wchar_t ch)
 {

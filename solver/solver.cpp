@@ -10,7 +10,7 @@ void Demo()
 {
 	// Create backtracker instance
 	CIqLinkBackTrack solver(IqLinkPiecePositions);
-	// All Pieces available
+	// All 12 Pieces available
 	std::vector<unsigned long> pieces = { LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, DarkGreenPiece,LightGreenPiece,
 		GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
 
@@ -19,18 +19,15 @@ void Demo()
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//Demo();
+	Demo();
 
 	// Create backtracker instance
 	CIqLinkBackTrack solver(IqLinkPiecePositions);
 
-	// All Pieces available
-	std::vector<unsigned long> pieces = {	LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, DarkGreenPiece,LightGreenPiece,
-											GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
-
-	// Select game index
+	// Pieces and occupance are defined by the game number
+	std::vector<unsigned long> pieces;
 	std::vector<unsigned long long> occupance;
-	if (!SetupGame(occupance, pieces, 51))
+	if (!SetupGame(occupance, pieces, 0))
 	{
 		return -1;
 	}
