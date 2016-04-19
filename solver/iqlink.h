@@ -1,3 +1,22 @@
+/*
+*
+* Copyright (C) 2016,  Jan Puskar <jan.puskar@gmail.com>
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 #pragma once
 #include <vector>
 #include <map>
@@ -126,7 +145,6 @@ const std::vector<std::wstring> s_colornames = { L"NoColor",
 //5 = Purple      D = Light Purple
 //6 = Yellow      E = Light Yellow
 //7 = White       F = Bright White
-
 const std::map<PieceColor, unsigned char > s_piececolors = { { PieceColor::NoColor, 0},
 { PieceColor::LightBlue, 0x09 },
 { PieceColor::DarkBlue, 0x01},
@@ -176,18 +194,17 @@ inline std::wstring PieceName(unsigned long piece) {
 }
 // At the given Pin Rotate piece and morph its pin flags and directions
 // Values 0 - 5   = rotate around 1st piece-pin
-//        6 - 11  = rotate around 2nd piece-pin 
-//        12 - 17 = rotate around 3rd piece-pin
-//		  18 - 23 = flip & rotate around 1st piece-pin
-//        24 - 29 = flip & rotate around 2nd piece-pin
-//	      30 - 35 = flip & rotate around 3rd piece-pin  
+//        6 - 11  = flip & rotate around 1st piece-pin
+// Other possibilities not used:			
+//		rotate around 2nd piece-pin --> not used
+//		rotate around 3rd piece-pin --> not used	
+//		flip & rotate around 2nd piece-pin --> not used
+//		flip & rotate around 3rd piece-pin  --> not used
 bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char position, unsigned long long& pin1, unsigned long long& pin2, unsigned long long& pin3);
 
 // Piece rotation is done via modular arithmetics mod 6. EVery piece at given PIN can be 
 // placed at most in 6 different direction for every PIN and since it is 2D object it can be flipped.
-// Totalling to 3 * 6 * 2 = 36 different positions at given PIN <--- OLD
-// NEWS: it should be possible to reach all states with kjust using positions 0 - 5 and 18 - 23. The rest will be covered on another PINs.
-const unsigned char IqLinkPiecePositions = 12;// 36;
+const unsigned char IqLinkPiecePositions = 12;
 
 // Occupancy vector - keeps state of empty/full positions for all PINs
 // For every PIN we need to store info about each direction (0 .. 5) and also about the center of the PIN (6).
@@ -224,7 +241,6 @@ inline unsigned long long MakePinWithPiece(PinId id, PieceColor color, unsigned 
 		((PiecePin & 0b00000010) == 0) ? PieceColor::NoColor : color, // NE
 		((PiecePin & 0b00000001) == 0) ? PieceColor::NoColor : color);// E
 }
-
 
 // Checks whether we can insert a piece on this pin
 bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>& occupance, unsigned long long& pin12);

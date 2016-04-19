@@ -1,8 +1,26 @@
+/*
+*
+* Copyright (C) 2016,  Jan Puskar <jan.puskar@gmail.com>
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 #include "stdafx.h"
 #include "iqlink.h"
 #include "presenter.h"
 
-#include <set>
 #include <vector>
 #include <algorithm>
 
@@ -78,12 +96,6 @@ Direction Flip(Direction dir)
 }
 
 // At the given Pin Rotate piece and morph its pin flags and directions
-// Values 0 - 5   = rotate around 1st piece-pin
-//        6 - 11  = rotate around 2nd piece-pin 
-//        12 - 17 = rotate around 3rd piece-pin
-//		  18 - 23 = flip & rotate around 1st piece-pin
-//        24 - 29 = flip & rotate around 2nd piece-pin
-//	      30 - 35 = flip & rotate around 3rd piece-pin  
 bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char position, unsigned long long& pin1, unsigned long long& pin2, unsigned long long& pin3)
 {
 	// Piece
@@ -142,110 +154,20 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
 	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
 
-	//// Pin1 with Id is 
-	//switch (position)
-	//{	
-	//case 0: // 0 - 5  rotate around 1st piece-pin
-	//case 1:
-	//case 2:
-	//case 3:
-	//case 4:
-	//case 5:
-	//case 18: // 18 - 23 = flip & rotate around 1st piece-pin
-	//case 19:
-	//case 20:
-	//case 21:
-	//case 22:
-	//case 23:
-	//	dir12 = RotateCounterClockWise(dir12, rotation);
-	//	dir23 = RotateCounterClockWise(dir23, rotation);
-	//	// Find new pins
-	//	if(!FindPin(pin1Id, dir12, pin2Id))
-	//	{
-	//		return false;
-	//	}
-	//	if (!FindPin(pin2Id, dir23, pin3Id))
-	//	{
-	//		return false;
-	//	}
-	//	// Costruct new Pins occupied by this piece in the given position
-	//	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin1);
-	//	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
-	//	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
-	//	break;
-
-	//case 6:// 6 - 11  = rotate around 2nd piece-pin 
-	//case 7:
-	//case 8:
-	//case 9:
-	//case 10:
-	//case 11:		
-	//case 24:// 24 - 29 = flip & rotate around 2nd piece-pin
-	//case 25:
-	//case 26:
-	//case 27:
-	//case 28:
-	//case 29:		
-	//	dir12 = RotateCounterClockWise(Inverse(dir12), rotation); // pin1Id is the middle pin
-	//	dir23 = RotateCounterClockWise(dir23, rotation);
-	//	// Find new pins - pin1Id is in the middle
-	//	if (!FindPin(pin1Id, dir12, pin2Id))
-	//	{
-	//		return false;
-	//	}
-	//	if (!FindPin(pin1Id, dir23, pin3Id))
-	//	{
-	//		return false;
-	//	}
-	//	// Costruct new Pins occupied by this piece in the given position
-	//	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin2);
-	//	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin1);
-	//	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin3);
-	//	break;
-	//case 12:// 12 - 17 = rotate around 3rd piece - pin
-	//case 13:
-	//case 14:
-	//case 15:
-	//case 16:
-	//case 17:		
-	//case 30:// 30 - 35 = flip & rotate around 3rd piece-pin  
-	//case 31:
-	//case 32:
-	//case 33:
-	//case 34:
-	//case 35:		
-	//	dir12 = RotateCounterClockWise(Inverse(dir12), rotation); // pin1Id is the most right one
-	//	dir23 = RotateCounterClockWise(Inverse(dir23), rotation);
-	//	// Find new pins - pin1Id is the most right one
-	//	if (!FindPin(pin1Id, dir23, pin2Id))
-	//	{
-	//		return false;
-	//	}
-	//	if (!FindPin(pin2Id, dir12, pin3Id))
-	//	{
-	//		return false;
-	//	}
-	//	// Costruct new Pins occupied by this piece in the given position
-	//	pin1 = MakePinWithPiece(pin1Id, color, (unsigned char)ullpiecepin3);
-	//	pin2 = MakePinWithPiece(pin2Id, color, (unsigned char)ullpiecepin2);
-	//	pin3 = MakePinWithPiece(pin3Id, color, (unsigned char)ullpiecepin1);		
-	//	break;
-
-	//default:
-	//	return false;
-	//}
 	return true;
 }
 
 bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>& occupance, unsigned long long& pin12)
 {
 	// Find existing pin1 in occupance that has the same PinId as pin2
-	auto it = std::find_if(occupance.begin(), occupance.end(), [=](auto occpin) { return  ((pin2 & (0b11111 << 28)) == (occpin & (0b11111 << 28))); });
-	if (it == occupance.end())
+	unsigned long long id2 = (pin2 & (0b11111 << 28)) >> 28;
+	// Find the pin with same id and make its value pin
+	if ((PinId)id2 >= PinId::_)
 	{
 		return false;
 	}
-	unsigned long long pin1 = *it;
+
+	unsigned long long pin1 = occupance.at(id2);
 
 	//   -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
 	//   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
@@ -281,9 +203,14 @@ bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>&
 }
 void UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupance)
 {
+	unsigned long long id = (pin & (0b11111 << 28)) >> 28;
 	// Find the pin with same id and make its value pin
-	std::transform(occupance.begin(), occupance.end(), occupance.begin(), [=](auto ull)	{ return ((pin & (0b11111 << 28)) == (ull & (0b11111 << 28))) ? pin : ull; });
+	if ((PinId)id < PinId::_)
+	{
+		occupance.at(id) = pin;
+	}	
 }
+
 bool IsPinEmpty(unsigned long long pin)
 {
 	//   -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
@@ -297,6 +224,7 @@ bool IsPinEmpty(unsigned long long pin)
 	unsigned long long c0 = (pin & 0b1111);
 	return c6 == 0 && c5 == 0 && c4 == 0 && c3 == 0 && c2 == 0 && c1 == 0 && c0 == 0;
 }
+
 bool PinFull(unsigned long long pin)
 {
 	//   -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
@@ -317,19 +245,20 @@ bool PinFull(unsigned long long pin)
 		(c2 != 0 && ((c1 != 0 && c1 != c2) || (c0 != 0 && c0 != c2))) ||
 		(c1 != 0 && (c0 != 0 && c0 != c1));	
 }
+
 unsigned long long GetPin(PinId id, const std::vector<unsigned long long>& occupance)
 {
-	// Find existing pin1 in occupance that has the same PinId as pin2
-	auto it = std::find_if(occupance.begin(), occupance.end(), [=](auto occpin) { return  id == (PinId)((occpin & (0b11111 << 28)) >> 28); });
-	if (it == occupance.end())
-	{
-		return 0;
-	}
-	unsigned long long pin = *it;
-	return pin;
+	return occupance.at((size_t)id);	
 }
+
 bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>& occupance, const size_t& level)
 {
+	UNREFERENCED_PARAMETER(occupance);
+
+	// NOTE:
+	// This function is too simple. It should check the occupance vector and decide whether it makes sense 
+	// to consider this pin for placemnt of the piece.
+
 	// This is the begining of the run. Only place pieces around 1st pin A
 	if (level == 12)
 	{
@@ -350,31 +279,8 @@ bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>
 	}
 
 	return true;
-
-	//// Pin is not full and contains already some. Ideal candidate.
-	//if (!IsPinEmpty(pin))
-	//{
-	//	return true;
-	//}
-	//
-	//// We are empty pin. Get neighbours to see. If there is a 
-	//PinId id = (PinId)((pin & (0b11111 << 28)) >> 28);
-
-	//PinId ide = s_neighbourhood.find(id)->second.at((size_t)Direction::East);
-	//unsigned long long pine = GetPin(ide, occupance);
-	//PinId idne = s_neighbourhood.find(id)->second.at((size_t)Direction::NorthEast);
-	//unsigned long long pinne = GetPin(idne, occupance);
-	//PinId idnw = s_neighbourhood.find(id)->second.at((size_t)Direction::NorthWest);
-	//unsigned long long pinnw = GetPin(idnw, occupance);
-	//PinId idw = s_neighbourhood.find(id)->second.at((size_t)Direction::West);
-	//unsigned long long pinw = GetPin(idw, occupance);
-	//PinId idsw = s_neighbourhood.find(id)->second.at((size_t)Direction::SouthWest);
-	//unsigned long long pinsw = GetPin(idsw, occupance);
-	//PinId idse = s_neighbourhood.find(id)->second.at((size_t)Direction::SouthEast);
-	//unsigned long long pinse = GetPin(idse, occupance);
-
-	//return !IsPinEmpty(pine) || !IsPinEmpty(pinne) || !IsPinEmpty(pinnw) || !IsPinEmpty(pinw) || !IsPinEmpty(pinsw) || !IsPinEmpty(pinse);
 }
+
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<unsigned long long>& new_occupance, unsigned long long pin, unsigned long piece, unsigned char rotation)
 {
@@ -427,6 +333,8 @@ bool PlacePiece(std::vector<unsigned long long>& occupance, unsigned long long p
 }
 bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned long>& pieces, unsigned long index)
 {
+	IqLinkPresenter pr;
+
 	std::vector<unsigned long> all_pieces = { LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, DarkGreenPiece,LightGreenPiece,
 		GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
 
@@ -441,22 +349,6 @@ bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned 
 	{
 		case 51:
 		{
-			/*const unsigned long LightBluePiece = MakePiece(PieceColor::LightBlue, 0b00101111, 0b00111111, 0b01000100, Direction::East, Direction::SouthEast);
-			const unsigned long DarkBluePiece = MakePiece(PieceColor::DarkBlue, 0b01000001, 0b01001100, 0b00110111, Direction::East, Direction::NorthWest);
-			const unsigned long DarkPurplePiece = MakePiece(PieceColor::DarkPurple, 0b01000001, 0b00111111, 0b00111110, Direction::East, Direction::NorthEast);
-			const unsigned long LightPurplePiece = MakePiece(PieceColor::LightPurple, 0b01000001, 0b00111001, 0b01001000, Direction::East, Direction::East);
-			const unsigned long DarkGreenPiece = MakePiece(PieceColor::DarkGreen, 0b01000001, 0b01001100, 0b00111011, Direction::East, Direction::NorthWest);
-			const unsigned long LightGreenPiece = MakePiece(PieceColor::LightGreen, 0b01000001, 0b00111111, 0b00111011, Direction::East, Direction::East);
-			const unsigned long GreenPiece = MakePiece(PieceColor::Green, 0b01000001, 0b00111111, 0b00111101, Direction::East, Direction::East);
-			const unsigned long LightPinkPiece = MakePiece(PieceColor::LightPink, 0b00011111, 0b00111111, 0b01000100, Direction::East, Direction::SouthEast);
-			const unsigned long DarkPinkPiece = MakePiece(PieceColor::DarkPink, 0b01000001, 0b00111110, 0b01000100, Direction::East, Direction::SouthEast);
-			const unsigned long RedPiece = MakePiece(PieceColor::Red, 0b01000001, 0b00111101, 0b00111110, Direction::East, Direction::SouthWest);
-			const unsigned long OrangePiece = MakePiece(PieceColor::Orange, 0b01000001, 0b00111110, 0b01100000, Direction::East, Direction::NorthWest);
-			const unsigned long YellowPiece = MakePiece(PieceColor::Yellow, 0b00110111, 0b00111111, 0b00111011, Direction::East, Direction::NorthEast);*/
-			// Display the move
-			
-			IqLinkPresenter pr;
-
 			unsigned long long pinB = GetPin(PinId::B, occupance);
 			if (PlacePiece(occupance, pinB, GreenPiece, 18)) // Flip GreenPiece and do not rotate
 			{
@@ -480,10 +372,7 @@ bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned 
 									if (PlacePiece(occupance, pinL, OrangePiece, 22)) // Flip OrangePiece and rotate by 4 around 1st
 									{
 										// Display the move
-										IqLinkPresenter pr;
 										pr.Visualize(occupance);
-
-										system("pause");
 
 										// Pieces left
 										std::vector<unsigned long> pieces_51 = { DarkBluePiece, DarkPurplePiece, DarkGreenPiece, DarkPinkPiece, YellowPiece };

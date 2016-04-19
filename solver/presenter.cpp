@@ -1,3 +1,22 @@
+/*
+*
+* Copyright (C) 2016,  Jan Puskar <jan.puskar@gmail.com>
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 #include "stdafx.h"
 #include "presenter.h"
 #include "iqlink.h"
@@ -5,47 +24,32 @@
 #include <conio.h>
 #include <iostream>
 #include <algorithm>
+
 using namespace std;
-void IqLinkPresenter::Visualize(const std::vector<std::vector<unsigned long long>>& solutions)
+void IqLinkPresenter::Visualize(const std::set<std::vector<unsigned long long>>& solutions, bool fWait)
 {
 	for (auto solution : solutions)
 	{
 		Visualize(solution);
+		if (fWait)
+		{
+			// Press ENTER to continue
+			std::cin.ignore();
+		}
 	}
 }
 void IqLinkPresenter::Visualize(const std::vector<unsigned long long>& solution)
 {
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	
-	//// Set buffer size
-	//COORD c = { _width, _height };
-	//if (!SetConsoleScreenBufferSize(hStdout, c))
-	//{
-	//	cout << "SetConsoleScreenBufferSize: " << GetLastError() << endl;
-	//	return;
-	//}
 
-	//// Set window size
-	//SMALL_RECT r = {0, 0, _width - 1, _height  - 1};
-	//if (!SetConsoleWindowInfo(hStdout, TRUE, &r))
-	//{
-	//	cout << "SetConsoleWindowInfo: " << GetLastError() << endl;
-	//	return;
-	//}
-	
 	// Clear screen
 	system("cls");
 
 	// Each pin will be displayed on given console
-	for_each(solution.begin(), solution.end(), [&](auto ull) { DisplayPin(hStdout, ull); });
-	
-	// Wait till key is pressed
-	//Sleep(2000);
-	//system("pause");
+	for_each(solution.begin(), solution.end(), [&](auto ull) { DisplayPin(hStdout, ull); });	
 }
 void IqLinkPresenter::DisplayPin(HANDLE h, unsigned long long pin)
 {
-	// Pin
 	// -Pin-ID-    -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
 	// b32 ... b28   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
 	unsigned long long id = (pin & (0b11111 << 28)) >> 28;
@@ -147,21 +151,16 @@ SHORT IqLinkPin::GetY(PinId id)
 }
 void IqLinkPin::Display(HANDLE h, PieceColor c6, PieceColor c5, PieceColor c4, PieceColor c3, PieceColor c2, PieceColor c1, PieceColor c0)
 {	
-	//    2   1   
-	//      
-	//	3   A   0  3   B   0 
-	//
-	//    4   5	
-	//         2   1
-	//
-	//       3   G   0
-	//
-	//         4   5
+	COORD 
+		center = { _x, _y }, 
+		dir0 = { _x + 4  , _y }, dir1 = { _x + 2 , _y - 2 }, dir2 = { _x - 2 , _y - 2 }, 
+		dir3 = { _x - 4 , _y }, dir4 = { _x - 2 , _y + 2 }, dir5 = { _x + 2 , _y + 2 },
+		dir01 = { _x + 3  , _y - 1 }, dir12 = { _x , _y - 2 }, dir23 = { _x - 3  , _y - 1 }, 
+		dir34 = { _x - 3  , _y + 1 }, dir45 = { _x  , _y + 2 }, dir50 = { _x + 3, _y + 1 },
+		dirc0 = { _x + 2  , _y }, dirc1 = { _x + 1  , _y - 1 }, dirc2 = { _x - 1 , _y - 1 }, 
+		dirc3 = { _x - 2  , _y }, dirc4 = { _x - 1  , _y + 1 }, dirc5 = { _x + 1  , _y + 1 };
 
-	COORD center = { _x, _y }, dir0 = { _x + 4  , _y }, dir1 = { _x + 2 , _y - 2 }, dir2 = { _x - 2 , _y - 2 }, dir3 = { _x - 4 , _y }, dir4 = { _x - 2 , _y + 2 }, dir5 = { _x + 2 , _y + 2 },
-		dir01 = { _x + 3  , _y - 1 }, dir12 = { _x , _y - 2 }, dir23 = { _x - 3  , _y - 1 }, dir34 = { _x - 3  , _y + 1 }, dir45 = { _x  , _y + 2 }, dir50 = { _x + 3, _y + 1 },
-		dirc0 = { _x + 2  , _y }, dirc1 = { _x + 1  , _y - 1 }, dirc2 = { _x - 1 , _y - 1 }, dirc3 = { _x - 2  , _y }, dirc4 = { _x - 1  , _y + 1 }, dirc5 = { _x + 1  , _y + 1 };
-
+	// Display main points + center
 	DisplayCenter(h, center, c6, L'*');
 	DisplayEdge(h, dir0, c0, L'*');
 	DisplayEdge(h, dir1, c1, L'*');
@@ -170,60 +169,24 @@ void IqLinkPin::Display(HANDLE h, PieceColor c6, PieceColor c5, PieceColor c4, P
 	DisplayEdge(h, dir4, c4, L'*');
 	DisplayEdge(h, dir5, c5, L'*');
 
-	if (c0 == c1 && (c0 != c6))
-	{
-		DisplayEdge(h, dir01, c0, L'\\');
-	}
-	if (c3 == c4 && (c3 != c6))
-	{
-		DisplayEdge(h, dir34, c3, L'\\');
-	}
-	if (c1 == c2 && (c1 != c6))
-	{
-		DisplayEdge(h, dir12, c2, L'-');
-	}
-	if (c4 == c5 && (c4 != c6))
-	{
-		DisplayEdge(h, dir45, c4, L'-');
-	}
-	if (c2 == c3 && (c2 != c6))
-	{
-		DisplayEdge(h, dir23, c2, L'/');
-	}
-	if (c5 == c0 && (c5 != c6))
-	{
-		DisplayEdge(h, dir50, c5, L'/');
-	}
-
-	if (c6 == c0)
-	{
-		DisplayEdge(h, dirc0, c6, L'-');
-	}
-	if (c6 == c1)
-	{
-		DisplayEdge(h, dirc1, c6, L'/');
-	}
-	if (c6 == c2)
-	{
-		DisplayEdge(h, dirc2, c6, L'\\');
-	}
-	if (c6 == c3)
-	{
-		DisplayEdge(h, dirc3, c6, L'-');
-	}
-	if (c6 == c4)
-	{
-		DisplayEdge(h, dirc4, c6, L'/');
-	}
-	if (c6 == c5)
-	{
-		DisplayEdge(h, dirc5, c6, L'\\');
-	}
-
+	// Display contours
+	if (c0 == c1 && (c0 != c6))	DisplayEdge(h, dir01, c0, L'\\');
+	if (c3 == c4 && (c3 != c6)) DisplayEdge(h, dir34, c3, L'\\');
+	if (c1 == c2 && (c1 != c6))DisplayEdge(h, dir12, c2, L'-');
+	if (c4 == c5 && (c4 != c6))DisplayEdge(h, dir45, c4, L'-');
+	if (c2 == c3 && (c2 != c6))DisplayEdge(h, dir23, c2, L'/');
+	if (c5 == c0 && (c5 != c6))DisplayEdge(h, dir50, c5, L'/');
+	
+	// Display center lines
+	if (c6 == c0)DisplayEdge(h, dirc0, c6, L'-');
+	if (c6 == c1)DisplayEdge(h, dirc1, c6, L'/');
+	if (c6 == c2)DisplayEdge(h, dirc2, c6, L'\\');
+	if (c6 == c3)DisplayEdge(h, dirc3, c6, L'-');
+	if (c6 == c4)DisplayEdge(h, dirc4, c6, L'/');
+	if (c6 == c5)DisplayEdge(h, dirc5, c6, L'\\');
 }
 void IqLinkPin::DisplayEdge(HANDLE h, COORD xy, PieceColor color, wchar_t ch)
-{
-	
+{	
 	if (color != PieceColor::NoColor)
 	{
 		if (s_piececolors.find(color) == s_piececolors.end())

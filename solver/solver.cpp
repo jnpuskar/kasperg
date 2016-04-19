@@ -1,15 +1,35 @@
-// solver.cpp : Defines the entry point for the console application.
-//
+/*
+*
+* Copyright (C) 2016,  Jan Puskar <jan.puskar@gmail.com>
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include "stdafx.h"
 #include "iqlink.h"
 #include "backtrack.h"
 #include "presenter.h"
 
-void Demo()
+void Intro(bool fShow)
 {
+	// Convenience flag
+	if (!fShow) return;
+
 	// Create backtracker instance
 	CIqLinkBackTrack solver(IqLinkPiecePositions);
+	
 	// All 12 Pieces available
 	std::vector<unsigned long> pieces = { LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, DarkGreenPiece,LightGreenPiece,
 		GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
@@ -19,28 +39,34 @@ void Demo()
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	Demo();
+	UNREFERENCED_PARAMETER(argc);
+	UNREFERENCED_PARAMETER(argv);
+
+	// Make an introduction to all used pieces
+	Intro(false);
 
 	// Create backtracker instance
 	CIqLinkBackTrack solver(IqLinkPiecePositions);
 
-	// Pieces and occupance are defined by the game number
+	// Pieces and occupance vector are defined by the game number --> 51 in this case
 	std::vector<unsigned long> pieces;
 	std::vector<unsigned long long> occupance;
-	if (!SetupGame(occupance, pieces, 0))
+	if (!SetupGame(occupance, pieces, 51))
 	{
+		// Bad things have happened
 		return -1;
 	}
 
-	// Find all solutions of the problem
-	solver.Solve(occupance, pieces);
+	// Solve the game, do not visualize partial progress and stop at 1st solution
+	solver.Solve(occupance, pieces, false, false);
 	
-	// Get computed solutions 
-	std::vector<std::vector<unsigned long long> > solutions = solver.GetSolutions();
+	// Get computed solution(s) 
+	std::set<std::vector<unsigned long long> > solutions = solver.GetSolutions();
 
-	// Visualize the results
+	// Visualize the results. Wait for ENTER after each one.
 	IqLinkPresenter presenter;
-	presenter.Visualize(solutions);
+	presenter.Visualize(solutions, true);
 
+	// Bye 
 	return 0;
 }
