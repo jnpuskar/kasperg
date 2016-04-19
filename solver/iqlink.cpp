@@ -389,6 +389,34 @@ bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned 
 		}
 		break;
 	
+		case 120:
+		{
+			// const unsigned long LightGreenPiece = MakePiece(PieceColor::LightGreen, 0b01000001, 0b00111111, 0b00111011, Direction::East, Direction::East);
+			// const unsigned long DarkGreenPiece = MakePiece(PieceColor::DarkGreen, 0b01000001, 0b01001100, 0b00111011, Direction::East, Direction::NorthWest);
+			unsigned long long pinT = GetPin(PinId::T, occupance);
+			if (PlacePiece(occupance, pinT, DarkGreenPiece, 2)) // DarkGreenPiece rotated by 2 no flip 
+			{
+				// Display the move
+				pr.Visualize(occupance);
+
+				unsigned long long pinX = GetPin(PinId::X, occupance);
+				if (PlacePiece(occupance, pinX, LightGreenPiece, 9)) // Flip LightGreenPiece and rotate by 3
+				{
+					// Display the move
+					pr.Visualize(occupance);
+					
+					// Pieces left
+					std::vector<unsigned long> pieces_120 = { LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece,
+						GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
+
+					pieces = pieces_120;
+
+					return true;					
+				}
+			}
+		}
+		break;
+
 		// Empty board		
 		case 0:
 		default:
