@@ -57,7 +57,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		return -1;
 	}
 
-	// Solve the game, do not visualize partial progress and stop at 1st solution
+	// Solve the game, do not visualize partial progress and do not stop at 1st solution
 	solver.Solve(occupance, pieces, false, false);
 	
 	// Get computed solution(s) 
