@@ -176,6 +176,25 @@ inline unsigned long MakePiece(PieceColor color, unsigned char pin1, unsigned ch
 			(((unsigned long)dir23));
 }
 
+inline size_t GetPieceFullPins(const unsigned long& piece)
+{
+	size_t cnt = 0;
+	unsigned long mask = 0b00111111;
+	if ((piece & (mask << 20)) == (mask << 20)) cnt++;
+	if ((piece & (mask << 13)) == (mask << 13)) cnt++;
+	if ((piece & (mask << 6)) == (mask << 6)) cnt++;
+	return cnt;
+}
+inline size_t GetPieceCenters(const unsigned long& piece)
+{
+	size_t cnt = 0;
+	unsigned long mask = 0b01000000;
+	if ((piece & (mask << 20)) == (mask << 20)) cnt++;
+	if ((piece & (mask << 13)) == (mask << 13)) cnt++;
+	if ((piece & (mask << 6)) == (mask << 6)) cnt++;
+	return cnt;
+}
+
 const unsigned long LightBluePiece = MakePiece(PieceColor::LightBlue, 0b00101111, 0b00111111, 0b01000100, Direction::East, Direction::SouthEast);
 const unsigned long DarkBluePiece = MakePiece(PieceColor::DarkBlue, 0b01000001, 0b01001100, 0b00110111, Direction::East, Direction::NorthWest);
 const unsigned long DarkPurplePiece = MakePiece(PieceColor::DarkPurple, 0b01000001, 0b00111111, 0b00111110, Direction::East, Direction::NorthEast);
@@ -246,7 +265,11 @@ inline unsigned long long MakePinWithPiece(PinId id, PieceColor color, unsigned 
 bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>& occupance, unsigned long long& pin12);
 void UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupance);
 bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>& occupance, const size_t& level);
-
+bool IsPinEmpty(unsigned long long pin);
+bool PinFull(unsigned long long pin);
+bool PinUnreachable(unsigned long long pin);
+bool PinCenterFree(unsigned long long pin);
+bool GetExistingPin(unsigned long long pin, const std::vector<unsigned long long>& occupance, unsigned long long& pin_existing);
 // Tests if the piece can be placed in given position and outputs new occupance if so
 bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<unsigned long long>& new_occupance, unsigned long long pin, unsigned long piece, unsigned char rotation);
 

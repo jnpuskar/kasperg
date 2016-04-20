@@ -28,7 +28,7 @@ void Intro(bool fShow)
 	if (!fShow) return;
 
 	// Create backtracker instance
-	CIqLinkBackTrack solver(IqLinkPiecePositions);
+	CIqLinkBackTrack solver;
 	
 	// All 12 Pieces available
 	std::vector<unsigned long> pieces = { LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, DarkGreenPiece,LightGreenPiece,
@@ -46,19 +46,19 @@ int _tmain(int argc, _TCHAR* argv[])
 	Intro(false);
 
 	// Create backtracker instance
-	CIqLinkBackTrack solver(IqLinkPiecePositions);
+	CIqLinkBackTrackHeuristic solver;
 
 	// Pieces and occupance vector are defined by the game number --> 51 in this case
 	std::vector<unsigned long> pieces;
 	std::vector<unsigned long long> occupance;
-	if (!SetupGame(occupance, pieces, 120))
+	if (!SetupGame(occupance, pieces, 51))
 	{
 		// Bad things have happened
 		return -1;
 	}
 
 	// Solve the game, visualize partial progress flag and stop at 1st solution flag
-	solver.Solve(occupance, pieces, true, false);
+	solver.Solve(occupance, pieces, true, true);
 	
 	// Get computed solution(s) 
 	std::set<std::vector<unsigned long long> > solutions = solver.GetSolutions();

@@ -159,16 +159,13 @@ bool RotatePiece(unsigned long long pin, unsigned long piece, unsigned char posi
 
 bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>& occupance, unsigned long long& pin12)
 {
-	// Find existing pin1 in occupance that has the same PinId as pin2
-	unsigned long long id2 = (pin2 & (0b11111 << 28)) >> 28;
-	// Find the pin with same id and make its value pin
-	if ((PinId)id2 >= PinId::_)
+	auto it = std::find_if(occupance.begin(), occupance.end(), [=](auto occpin) { return  ((pin2 & (0b11111 << 28)) == (occpin & (0b11111 << 28))); });
+	if (it == occupance.end())
 	{
 		return false;
 	}
-
-	unsigned long long pin1 = occupance.at(id2);
-
+	unsigned long long pin1 = *it;
+	
 	//   -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
 	//   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
 	unsigned long long c16 = (pin1 & (0b1111 << 24)) >> 24;
@@ -203,12 +200,7 @@ bool IsAvailable(unsigned long long pin2, const std::vector<unsigned long long>&
 }
 void UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupance)
 {
-	unsigned long long id = (pin & (0b11111 << 28)) >> 28;
-	// Find the pin with same id and make its value pin
-	if ((PinId)id < PinId::_)
-	{
-		occupance.at(id) = pin;
-	}	
+	std::transform(occupance.begin(), occupance.end(), occupance.begin(), [=](auto ull) { return ((pin & (0b11111 << 28)) == (ull & (0b11111 << 28))) ? pin : ull; });
 }
 
 bool IsPinEmpty(unsigned long long pin)
@@ -245,12 +237,47 @@ bool PinFull(unsigned long long pin)
 		(c2 != 0 && ((c1 != 0 && c1 != c2) || (c0 != 0 && c0 != c2))) ||
 		(c1 != 0 && (c0 != 0 && c0 != c1));	
 }
+bool PinUnreachable(unsigned long long pin)
+{
+	return false;
+}
+bool PinCenterFree(unsigned long long pin)
+{
+	//   -Dir6-Color- -Dir5-Color- -Dir4-Color- -Dir3-Color- -Dir2-Color- -Dir1-Color- -Dir0-Color- 
+	//   b27 ... b24   b23 ... b20  b19 ... b16  b15 ... b12  b11 ... b8   b7 ... b4    b3 ... b0
+	unsigned long long c6 = (pin & (0b1111 << 24)) >> 24;
+	unsigned long long c5 = (pin & (0b1111 << 20)) >> 20;
+	unsigned long long c4 = (pin & (0b1111 << 16)) >> 16;
+	unsigned long long c3 = (pin & (0b1111 << 12)) >> 12;
+	unsigned long long c2 = (pin & (0b1111 << 8)) >> 8;
+	unsigned long long c1 = (pin & (0b1111 << 4)) >> 4;
+	unsigned long long c0 = (pin & 0b1111);
+
+	// We have to be fast. So no STL container creation. No algorithms. 
+	return (c6 == 0 && (!(c5 != 0 && c4 != 0 && c3 != 0 && c2 != 0 && c1 != 0 && c0 != 0)));		
+}
 
 unsigned long long GetPin(PinId id, const std::vector<unsigned long long>& occupance)
 {
-	return occupance.at((size_t)id);	
+	// Find existing pin1 in occupance that has the same PinId as pin2
+	auto it = std::find_if(occupance.begin(), occupance.end(), [=](auto occpin) { return  id == (PinId)((occpin & (0b11111 << 28)) >> 28); });
+	if (it == occupance.end())
+	{
+		return 0;
+	}
+	unsigned long long pin = *it;
+	return pin;
 }
-
+bool GetExistingPin(unsigned long long pin, const std::vector<unsigned long long>& occupance, unsigned long long& pin_existing)
+{
+	auto it = std::find_if(occupance.begin(), occupance.end(), [=](auto occpin) { return  ((pin & (0b11111 << 28)) == (occpin & (0b11111 << 28))); });
+	if (it == occupance.end())
+	{
+		return false;
+	}
+	pin_existing = *it;
+	return true;
+}
 bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>& occupance, const size_t& level)
 {
 	UNREFERENCED_PARAMETER(occupance);
