@@ -267,7 +267,6 @@ void UpdatePin(unsigned long long pin, std::vector<unsigned long long>& occupanc
 bool PinIsAdjacent(unsigned long long pin, const std::vector<unsigned long long>& occupance, const size_t& level);
 bool IsPinEmpty(unsigned long long pin);
 bool PinFull(unsigned long long pin);
-bool PinUnreachable(unsigned long long pin);
 bool PinCenterFree(unsigned long long pin);
 bool GetExistingPin(unsigned long long pin, const std::vector<unsigned long long>& occupance, unsigned long long& pin_existing);
 // Tests if the piece can be placed in given position and outputs new occupance if so

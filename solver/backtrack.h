@@ -66,12 +66,19 @@ class CIqLinkBackTrackHeuristic : public CIqLinkBackTrack
 {
 public:
 	// Empty board constructor
-	CIqLinkBackTrackHeuristic() : CIqLinkBackTrack() {}
+	CIqLinkBackTrackHeuristic(unsigned char level = 4) : CIqLinkBackTrack(), _level(level) {}
 	~CIqLinkBackTrackHeuristic() {}
 	// Brute force approach
 	virtual bool Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize);	
 private:
-	unsigned long GetCost(unsigned long long pin);
-	bool Futile(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces);
-	bool GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::vector<CIqLinkMove>& statespace);
+	unsigned long Cost(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long> pieces);
+	bool GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::set<CIqLinkMove>& statespace);
+	unsigned long EvaluateMove(
+		std::vector<unsigned long long> occupance,
+		std::vector<unsigned long> pieces,
+		unsigned char level);
+	bool PinUnreachable(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, unsigned long long pin);
+	
+private:
+	unsigned char _level;
 };

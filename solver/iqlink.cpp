@@ -235,11 +235,8 @@ bool PinFull(unsigned long long pin)
 		(c4 != 0 && ((c3 != 0 && c3 != c4) || (c2 != 0 && c2 != c4) || (c1 != 0 && c1 != c4) || (c0 != 0 && c0 != c4))) ||
 		(c3 != 0 && ((c2 != 0 && c2 != c3) || (c1 != 0 && c1 != c3) || (c0 != 0 && c0 != c3))) ||
 		(c2 != 0 && ((c1 != 0 && c1 != c2) || (c0 != 0 && c0 != c2))) ||
-		(c1 != 0 && (c0 != 0 && c0 != c1));	
-}
-bool PinUnreachable(unsigned long long pin)
-{
-	return false;
+		(c1 != 0 && (c0 != 0 && c0 != c1)) ||
+		(c6 != 0 && c5 != 0 && c4 != 0 && c3 != 0 && c2 != 0 && c1 != 0 && c0 != 0);
 }
 bool PinCenterFree(unsigned long long pin)
 {
