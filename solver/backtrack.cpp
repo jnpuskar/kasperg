@@ -23,6 +23,8 @@
 #include "presenter.h"
 #include <iostream>
 #include <sstream>
+#include <thread>
+#include <algorithm>
 
 // Brute force approach
 bool CIqLinkBackTrack::Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize)
@@ -313,11 +315,32 @@ unsigned long CIqLinkBackTrackHeuristic::EvaluateMove(
 
 bool CIqLinkBackTrackHeuristic2::Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize)
 {
+	// Generate all moves vector
 	std::map<unsigned long, std::vector<CIqLinkOcc>> statespace;
 	if (!GenerateStateSpace(occupance, pieces, statespace))
 		return false;
 
-	return Solve_51(occupance, statespace, fStopAt1st, fVisualize);
+	// std::thread::hardware_ concurrency() function returns the number of threads 
+	// that can run concurrently for a given execution.
+	unsigned long const num_threads = std::thread::hardware_concurrency();
+
+	// Launch one fewer thread than num_threads, because we already have one.
+	std::vector<std::thread> threads(num_threads - 1);
+
+	// Launching the threads with a loop 
+	for (unsigned long i = 0; i < num_threads - 1; ++i)
+	{
+		// launch a new thread to accumulate the results for the block
+		threads[i] = std::thread(Solve_120, occupance, statespace, fStopAt1st, fVisualize, i, num_threads);
+	}
+	
+	// Last thread is this one
+	Solve_120( occupance, statespace, fStopAt1st, fVisualize, num_threads - 1, num_threads);
+
+	// Wait for all
+	std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
+
+	return true;
 }
 bool CIqLinkBackTrackHeuristic2::GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace)
 {
@@ -354,8 +377,8 @@ bool CIqLinkBackTrackHeuristic2::GenerateStateSpace(const std::vector<unsigned l
 							UpdatePin(newpin3, next_occupance);
 
 							// Display the move
-							IqLinkPresenter pr;
-							pr.Visualize(next_occupance);
+							//IqLinkPresenter pr;
+							//pr.Visualize(next_occupance);
 
 							// Press any key
 							//std::cin.ignore();
@@ -373,16 +396,32 @@ bool CIqLinkBackTrackHeuristic2::GenerateStateSpace(const std::vector<unsigned l
 		}
 	}
 
+	IqLinkPresenter pr;
+	pr.Visualize(occupance);
+
 	return true;
 }
 
 
-bool CIqLinkBackTrackHeuristic2::Solve_120(std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize)
+bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long, 
+	std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum)
 {
 	// LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece 
+	std::vector<CIqLinkOcc> parv;
+	std::vector<CIqLinkOcc>& temp = statespace[(unsigned long)LightBluePiece];
+	size_t blen = std::distance(temp.begin(), temp.end()) / tnum;
+	size_t offset = blen * id;
+	if (id >= tnum - 1)
+	{
+		parv.assign(temp.begin() + offset, temp.end());
+	}
+	else
+	{
+		parv.assign(temp.begin() + offset, temp.begin() + offset + blen);
+	}
 
-	CIqLinkOcc s ;
-	for (auto stateLightBluePiece : statespace[(unsigned long)LightBluePiece])
+	CIqLinkOcc s;
+	for (auto stateLightBluePiece : parv)
 	{
 		if (s.Discrete(stateLightBluePiece))
 		{
@@ -427,11 +466,45 @@ bool CIqLinkBackTrackHeuristic2::Solve_120(std::map<unsigned long, std::vector<C
 																		if (s.Discrete(stateOrangePiece))
 																		{
 																			s = s | stateOrangePiece;
+																			IqLinkPresenter pr;
+																			pr.Visualize(occupance);
+																			pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
+																			pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
+																			pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple);
+																			pr.Visualize(stateLightPurplePiece, PieceColor::LightPurple);
+																			pr.Visualize(stateGreenPiece, PieceColor::Green);
+																			pr.Visualize(stateLightPinkPiece, PieceColor::LightPink);
+																			pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink);
+																			pr.Visualize(stateRedPiece, PieceColor::Red);
+																			pr.Visualize(stateOrangePiece, PieceColor::Orange);
+
+																			std::cin.ignore();
+
 																			for (auto stateYellowPiece : statespace[(unsigned long)YellowPiece])
 																			{
 																				if (s.Discrete(stateYellowPiece))
 																				{
 																					s = s | stateYellowPiece;
+
+																					// Display the moves
+																					// LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, 
+																					// GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece 
+
+																					IqLinkPresenter pr;
+																					pr.Visualize(occupance);
+																					pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
+																					pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
+																					pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple);
+																					pr.Visualize(stateLightPurplePiece, PieceColor::LightPurple);
+																					pr.Visualize(stateGreenPiece, PieceColor::Green);
+																					pr.Visualize(stateLightPinkPiece, PieceColor::LightPink);
+																					pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink);
+																					pr.Visualize(stateRedPiece, PieceColor::Red);
+																					pr.Visualize(stateOrangePiece, PieceColor::Orange);
+																					pr.Visualize(stateYellowPiece, PieceColor::Yellow);
+
+																					// Press any key
+																					std::cin.ignore();
 
 																					if (fStopAt1st)
 																					{
@@ -470,12 +543,26 @@ bool CIqLinkBackTrackHeuristic2::Solve_120(std::map<unsigned long, std::vector<C
 	return false;
 }
 	
-bool CIqLinkBackTrackHeuristic2::Solve_51(const std::vector<unsigned long long>& occupance, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize)
+bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum)
 {
+	std::vector<CIqLinkOcc> parv;
+	std::vector<CIqLinkOcc>& temp = statespace[(unsigned long)DarkBluePiece];
+	size_t blen = std::distance(temp.begin(), temp.end()) / tnum;
+	size_t offset = blen * id;
+	if (id >= tnum - 1)
+	{
+		parv.assign(temp.begin() + offset, temp.end());
+	}
+	else
+	{
+		parv.assign(temp.begin() + offset, temp.begin() + offset + blen);
+	}
+
+
 	// DarkBluePiece, DarkPurplePiece, DarkGreenPiece, DarkPinkPiece, YellowPiece 
 	CIqLinkOcc s;
 	
-	for (auto stateDarkBluePiece : statespace[(unsigned long)DarkBluePiece])
+	for (auto stateDarkBluePiece : parv)
 	{
 		if (s.Discrete(stateDarkBluePiece))
 		{

@@ -505,7 +505,7 @@ bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned 
 					pr.Visualize(occupance);
 					
 					// Pieces left
-					std::vector<unsigned long> pieces_120 = { LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece,
+					std::vector<unsigned long> pieces_120 = { LightBluePiece,DarkBluePiece, DarkPurplePiece,LightPurplePiece,
 						GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece };
 
 					pieces = pieces_120;

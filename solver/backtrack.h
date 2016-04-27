@@ -98,6 +98,9 @@ public:
 	bool GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace);
 
 private:
-	bool Solve_120(std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize);
-	bool Solve_51(const std::vector<unsigned long long>& occupance, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize);
+	//void Solve_120(const std::vector<unsigned long long>& occupance, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
+	//bool Solve_51(const std::vector<unsigned long long>& occupance, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize);
 };
+
+bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
+bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
