@@ -356,6 +356,77 @@ bool PlacePiece(std::vector<unsigned long long>& occupance, unsigned long long p
 
 	return true;
 }
+CIqLinkOcc CompressOcc(const std::vector<unsigned long long>& occupance)
+{
+	CIqLinkOcc o;
+
+	for (auto pin : occupance)
+	{
+		unsigned long long id = pin >> 28;
+		unsigned long long c6 = (pin & (0b1111 << 24)) >> 24;
+		unsigned long long c5 = (pin & (0b1111 << 20)) >> 20;
+		unsigned long long c4 = (pin & (0b1111 << 16)) >> 16;
+		unsigned long long c3 = (pin & (0b1111 << 12)) >> 12;
+		unsigned long long c2 = (pin & (0b1111 << 8)) >> 8;
+		unsigned long long c1 = (pin & (0b1111 << 4)) >> 4;
+		unsigned long long c0 = (pin & 0b1111);
+		
+		unsigned long long newpin = ((((c0 != 0) ? 1 : 0) << 0) | (((c1 != 0) ? 1 : 0) << 1) | (((c2 != 0) ? 1 : 0) << 2) | (((c3 != 0) ? 1 : 0) << 3) | (((c4 != 0) ? 1 : 0) << 4) | (((c5 != 0) ? 1 : 0) << 5) | (((c6 != 0) ? 1 : 0) << 6));
+
+		if (id <= (unsigned long long)(PinId::H))
+		{
+			o.ah |= (newpin << ((id % 8) * 7));
+		}
+		else if (id <= (unsigned long long)(PinId::P))
+		{
+			o.ip |= (newpin << ((id % 8) * 7));
+		}
+		else
+		{
+			o.qx |= (newpin << ((id % 8) * 7));
+		}
+	}
+
+	return o;
+}
+void DecompressOcc(const CIqLinkOcc& o, PieceColor c, std::vector<unsigned long long>& occupance)
+{
+	std::vector<unsigned long long> new_occupance = 
+		{ MakeEmptyPin(PinId::A), MakeEmptyPin(PinId::B), MakeEmptyPin(PinId::C), MakeEmptyPin(PinId::D), MakeEmptyPin(PinId::E), MakeEmptyPin(PinId::F),
+		MakeEmptyPin(PinId::G),	MakeEmptyPin(PinId::H),	MakeEmptyPin(PinId::I),	MakeEmptyPin(PinId::J),	MakeEmptyPin(PinId::K),	MakeEmptyPin(PinId::L),
+		MakeEmptyPin(PinId::M), MakeEmptyPin(PinId::N), MakeEmptyPin(PinId::O), MakeEmptyPin(PinId::P), MakeEmptyPin(PinId::Q), MakeEmptyPin(PinId::R),
+		MakeEmptyPin(PinId::S), MakeEmptyPin(PinId::T), MakeEmptyPin(PinId::U), MakeEmptyPin(PinId::V), MakeEmptyPin(PinId::W), MakeEmptyPin(PinId::X) };
+
+	std::transform(new_occupance.begin(), new_occupance.end(), new_occupance.begin(), [&](auto pin)
+	{
+		unsigned long long pinmask = 0;
+		unsigned long long id = pin >> 28;
+		if (id <= (unsigned long long)(PinId::H))
+		{
+			pinmask = o.ah & ((unsigned long long)0b01111111 << ((id % 8) * 7));
+		}
+		else if (id <= (unsigned long long)(PinId::P))
+		{
+			pinmask = o.ip & ((unsigned long long)0b01111111 << ((id % 8) * 7));
+		}
+		else
+		{
+			pinmask = o.qx & ((unsigned long long)0b01111111 << ((id % 8) * 7));
+		}
+
+		if (pinmask != 0)
+		{
+			pinmask = pinmask >> ((id % 8) * 7);
+			unsigned long long newpin = MakePinWithPiece((PinId)id, c, (unsigned char)pinmask);
+			return newpin;
+		}
+		else
+		{
+			return pin;
+		}
+	});
+	occupance = new_occupance;
+}
 bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned long>& pieces, unsigned long index)
 {
 	IqLinkPresenter pr;
@@ -400,7 +471,7 @@ bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned 
 										pr.Visualize(occupance);
 
 										// Press ENTER to continue
-										std::cin.ignore();
+										//std::cin.ignore();
 
 										// Pieces left
 										std::vector<unsigned long> pieces_51 = { DarkBluePiece, DarkPurplePiece, DarkGreenPiece, DarkPinkPiece, YellowPiece };

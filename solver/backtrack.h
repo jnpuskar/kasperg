@@ -86,3 +86,18 @@ private:
 	bool PinUnreachable(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, unsigned long long pin);
 	
 };
+
+class CIqLinkBackTrackHeuristic2 : public CIqLinkBackTrack
+{
+public:
+	// Empty board constructor
+	CIqLinkBackTrackHeuristic2() : CIqLinkBackTrack() {}
+	~CIqLinkBackTrackHeuristic2() {}
+	// Solve using a cost function associated with each move
+	virtual bool Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize);
+	bool GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace);
+
+private:
+	bool Solve_120(std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize);
+	bool Solve_51(const std::vector<unsigned long long>& occupance, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize);
+};

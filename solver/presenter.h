@@ -29,6 +29,7 @@ public:
 	
 	void Visualize(const std::set<std::vector<unsigned long long>>& solutions, bool fWait);
 	void Visualize(const std::vector<unsigned long long>& solution);
+	void Visualize(const CIqLinkOcc& occ, PieceColor c);
 	void DisplayPin(HANDLE h, unsigned long long pin);
 private:
 	const short _width = 110;

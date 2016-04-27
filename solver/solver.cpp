@@ -54,11 +54,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		return -1;
 	}
 
-	// Compute all possible moves and their cost. Sort them by cost. The smaller the better. We will try the moves from the best ones to worst.
-	std::map<unsigned long, std::set<CIqLinkMove>> statespace;
-	
 	// Solve the game, visualize partial progress flag and stop at 1st solution flag
-	CIqLinkBackTrackBrute solver;
+	CIqLinkBackTrackHeuristic2 solver;
 	solver.Solve(occupance, pieces, true, true);
 	
 	// Get computed solution(s) 

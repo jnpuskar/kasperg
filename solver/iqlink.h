@@ -274,3 +274,41 @@ bool IsPlaceable(const std::vector<unsigned long long>& occupance, std::vector<u
 
 // Create initial setup of the game
 bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned long>& pieces, unsigned long index);
+
+
+// Compressed occupance - 3 64 bit values to keep 7 bits per PIN
+struct CIqLinkOcc
+{
+	CIqLinkOcc() : ah(0), ip(0), qx(0){}
+	unsigned long long ah;
+	unsigned long long ip;
+	unsigned long long qx;
+	const bool operator < (const CIqLinkOcc &rhs) const 
+	{ 
+		if (ah < rhs.ah)
+			return true;
+		if (ip < rhs.ip)
+			return true;
+		if (qx < rhs.qx)
+			return true;
+		return false;
+	}
+	const bool operator == (const CIqLinkOcc &rhs) const { return  ah == rhs.ah && ip == rhs.ip && qx == rhs.qx; }
+	CIqLinkOcc operator ^ (const CIqLinkOcc& rhs) { CIqLinkOcc res; res.ah = ah ^ rhs.ah; res.ip = ip ^ rhs.ip; res.qx = qx ^ rhs.qx; return res; }
+	CIqLinkOcc operator & (const CIqLinkOcc& rhs) { CIqLinkOcc res; res.ah = ah & rhs.ah; res.ip = ip & rhs.ip; res.qx = qx & rhs.qx; return res; }
+	CIqLinkOcc operator | (const CIqLinkOcc& rhs) { CIqLinkOcc res; res.ah = ah | rhs.ah; res.ip = ip | rhs.ip; res.qx = qx | rhs.qx; return res; }
+	CIqLinkOcc operator ~ () { CIqLinkOcc res; res.ah = ~ah; res.ip = ~ip; res.qx = ~qx; return res; }
+
+	bool IsNull() { return ah == 0 && ip == 0 && qx == 0; }
+	bool Discrete(const CIqLinkOcc& o)
+	{
+		if (((ah & o.ah) == 0) && ((ip & o.ip) == 0) && ((qx & o.qx) == 0))
+		{
+			return true;
+		}
+		return false;
+	}
+};
+
+CIqLinkOcc CompressOcc(const std::vector<unsigned long long>& occupance);
+void DecompressOcc(const CIqLinkOcc& o, PieceColor c, std::vector<unsigned long long>& occupance);
