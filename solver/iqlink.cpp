@@ -20,6 +20,7 @@
 #include "stdafx.h"
 #include "iqlink.h"
 #include "presenter.h"
+#include <iostream>
 
 #include <vector>
 #include <algorithm>
@@ -397,6 +398,9 @@ bool SetupGame(std::vector<unsigned long long>& occupance, std::vector<unsigned 
 									{
 										// Display the move
 										pr.Visualize(occupance);
+
+										// Press ENTER to continue
+										std::cin.ignore();
 
 										// Pieces left
 										std::vector<unsigned long> pieces_51 = { DarkBluePiece, DarkPurplePiece, DarkGreenPiece, DarkPinkPiece, YellowPiece };

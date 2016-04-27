@@ -45,19 +45,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	// Make an introduction to all used pieces
 	Intro(false);
 
-	// Create backtracker instance
-	CIqLinkBackTrackHeuristic solver(2);
-
 	// Pieces and occupance vector are defined by the game number --> 51 in this case
 	std::vector<unsigned long> pieces;
 	std::vector<unsigned long long> occupance;
-	if (!SetupGame(occupance, pieces, 120))
+	if (!SetupGame(occupance, pieces, 51))
 	{
 		// Bad things have happened
 		return -1;
 	}
 
+	// Compute all possible moves and their cost. Sort them by cost. The smaller the better. We will try the moves from the best ones to worst.
+	std::map<unsigned long, std::set<CIqLinkMove>> statespace;
+	
 	// Solve the game, visualize partial progress flag and stop at 1st solution flag
+	CIqLinkBackTrackBrute solver;
 	solver.Solve(occupance, pieces, true, true);
 	
 	// Get computed solution(s) 

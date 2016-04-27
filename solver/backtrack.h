@@ -25,15 +25,20 @@
 
 struct CIqLinkMove
 {	
-	unsigned long		cost;	 // The lower cost the better. Cost means hown much sopace is consumed
+	unsigned long		cost;			
 	unsigned long		piece;	 // Piece itself
 	unsigned char		position;// Rotation & flip
 	unsigned long long	pin1;	 // Pin1 after Piece was placed on existing occupance	
 	unsigned long long	pin2;	 // Pin1 after Piece was placed on existing occupance	
 	unsigned long long	pin3;	 // Pin1 after Piece was placed on existing occupance		
-	
+
 	// We need to sort moves based on the price
-	const bool operator < (const CIqLinkMove &rhs) const { return  cost < rhs.cost; }	
+	const bool operator < (const CIqLinkMove &rhs) const { return  cost < rhs.cost; }
+	const bool operator == (const CIqLinkMove &rhs) const 
+	{ 
+		return  cost == rhs.cost && piece == rhs.piece && position == rhs.position &&
+			pin1 == rhs.pin1 && pin2 == rhs.pin2 && pin3 == rhs.pin3;
+	}
 };
 
 class CIqLinkBackTrack
@@ -66,19 +71,18 @@ class CIqLinkBackTrackHeuristic : public CIqLinkBackTrack
 {
 public:
 	// Empty board constructor
-	CIqLinkBackTrackHeuristic(unsigned char level = 4) : CIqLinkBackTrack(), _level(level) {}
+	CIqLinkBackTrackHeuristic() : CIqLinkBackTrack() {}
 	~CIqLinkBackTrackHeuristic() {}
-	// Brute force approach
+	// Solve using a cost function associated with each move
 	virtual bool Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize);	
+	bool GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkMove>>& statespace);
+
 private:
 	unsigned long Cost(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long> pieces);
-	bool GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::set<CIqLinkMove>& statespace);
 	unsigned long EvaluateMove(
 		std::vector<unsigned long long> occupance,
 		std::vector<unsigned long> pieces,
 		unsigned char level);
 	bool PinUnreachable(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, unsigned long long pin);
 	
-private:
-	unsigned char _level;
 };

@@ -145,47 +145,50 @@ bool CIqLinkBackTrackHeuristic::Solve(std::vector<unsigned long long> occupance,
 		return true;
 	}
 
-	// Compute all possible moves and their cost. Sort them by cost. The smaller the better. We will try the moves from the best ones to worst.
-	std::set<CIqLinkMove> statespace;
-	if (!GenerateStateSpace(occupance, pieces, statespace))
-	{
-		return false;
-	}
+	std::map<unsigned long, std::vector<CIqLinkMove>> statespace;
+	GenerateStateSpace(occupance, pieces, statespace);
 
 	// Cycle through all possible moves in this round. Most promising ones are at the beginning.
-	for (auto move : statespace)
+	for (auto piece : pieces)
 	{
-		// Remove used piece from pieces
-		std::vector<unsigned long> next_pieces;
-		std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(next_pieces), [=](auto p) { return !(p == move.piece); });
-		
-		// Update new occupance
-		std::vector<unsigned long long> next_occupance = occupance;
-		UpdatePin(move.pin1, next_occupance);
-		UpdatePin(move.pin2, next_occupance);
-		UpdatePin(move.pin3, next_occupance);
-
-		if (fVisualize)
+		std::vector<CIqLinkMove>& moves = statespace[piece];
+		for (auto move : moves)
 		{
-				// Tracing
-				std::wstringstream str;
-				str << " Piece " << PieceName(move.piece).c_str() << ", Pin " << PinIdName(move.pin1) << ", Position " << (int)(move.position) << ", Level " << pieces.size() << ", Cost " << move.cost << std::endl;
-				OutputDebugString(str.str().c_str());
+				// Remove used piece from pieces
+				std::vector<unsigned long> next_pieces;
+				std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(next_pieces), [=](auto p) { return !(p == piece); });
 
-				// Display the move
-				IqLinkPresenter pr;
-				pr.Visualize(next_occupance);
+				// Update new occupance
+				std::vector<unsigned long long> next_occupance = occupance;
+				UpdatePin(move.pin1, next_occupance);
+				UpdatePin(move.pin2, next_occupance);
+				UpdatePin(move.pin3, next_occupance);
+
+				if (fVisualize)
+				{
+					// Tracing
+					std::wstringstream str;
+					str << " Piece " << PieceName(piece).c_str() << ", Pin " << PinIdName(move.pin1) << ", Position " << (int)(move.position) << ", Level " << pieces.size() << ", Cost " << move.cost << std::endl;
+					OutputDebugString(str.str().c_str());
+
+					// Display the move
+					IqLinkPresenter pr;
+					pr.Visualize(next_occupance);
+					
+				}
+
+				// Recursively iterate with new occupance and pieces until we consume all pieces or hit the non-placeable situation or end
+				bool fResult = Solve(next_occupance, next_pieces, fStopAt1st, fVisualize);
+
+				// Exiting after the 1st solution?
+				if (fStopAt1st &&  fResult)
+				{
+					return true;
+				}
+			
 		}
-		
-		// Recursively iterate with new occupance and pieces until we consume all pieces or hit the non-placeable situation or end
-		bool fResult = Solve(next_occupance, next_pieces, fStopAt1st, fVisualize);
-
-		// Exiting after the 1st solution?
-		if (fStopAt1st &&  fResult)
-		{
-			return true;
-		}		
 	}
+	
 
 	// All possible moves were exhausted. Return.
 	return false;
@@ -197,7 +200,7 @@ unsigned long CIqLinkBackTrackHeuristic::Cost(const std::vector<unsigned long lo
 	// 2 - pin is halfoccupied (!full and !empty) and can be used for placement
 	// 4 - pin is halfoccupied (!full and !empty), but cannot be used for placement
 	// 8 - pin is empty, but cannot be used for placement
-	/*unsigned long cost = 0;
+	unsigned long cost = 0;
 	std::for_each(occupance.begin(), occupance.end(), [&](auto pin) {
 		if (PinFull(pin))
 		{
@@ -211,8 +214,7 @@ unsigned long CIqLinkBackTrackHeuristic::Cost(const std::vector<unsigned long lo
 			}
 		}
 	});
-	return cost;*/
-	return 1;
+	return cost;
 }
 bool CIqLinkBackTrackHeuristic::PinUnreachable(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, unsigned long long pin)
 {
@@ -242,15 +244,18 @@ bool CIqLinkBackTrackHeuristic::PinUnreachable(const std::vector<unsigned long l
 	return true;
 }
 
-bool CIqLinkBackTrackHeuristic::GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::set<CIqLinkMove>& statespace)
+bool CIqLinkBackTrackHeuristic::GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkMove>>& statespace)
 {
 	for (auto piece : pieces)
 	{
+		std::vector<CIqLinkMove> m;
+		statespace[piece] = m;
+
 		for (auto pin : occupance)
 		{
 			for (unsigned char position = 0; position < IqLinkPiecePositions; ++position)
 			{
-				// Rotate the pice to a given position. Get the possibly occupied pins with occupance masks
+				// Rotate the piece to a given position. Get the possibly occupied pins with occupance masks
 				unsigned long long pin1, pin2, pin3;
 				if (RotatePiece(pin, piece, position, pin1, pin2, pin3))
 				{
@@ -258,25 +263,42 @@ bool CIqLinkBackTrackHeuristic::GenerateStateSpace(const std::vector<unsigned lo
 					unsigned long long newpin1, newpin2, newpin3;
 					if (IsAvailable(pin1, occupance, newpin1) && IsAvailable(pin2, occupance, newpin2) && IsAvailable(pin3, occupance, newpin3))
 					{
-						// Remove used piece from pieces
-						std::vector<unsigned long> next_pieces;
-						std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(next_pieces), [=](auto p) { return !(p == piece); });
+						CIqLinkMove move = { 0xFFFFFFFF,	piece,	position, newpin1, newpin2, newpin3 };
 
-						// Update new occupance
 						std::vector<unsigned long long> next_occupance = occupance;
-						UpdatePin(newpin1, next_occupance);
-						UpdatePin(newpin2, next_occupance);
-						UpdatePin(newpin3, next_occupance);
+						UpdatePin(move.pin1, next_occupance);
+						UpdatePin(move.pin2, next_occupance);
+						UpdatePin(move.pin3, next_occupance);
 
-						// Do evaluation of next move by brute force , look _level in-depth
-						unsigned long cost = EvaluateMove(next_occupance, next_pieces, _level);
-						CIqLinkMove move = { cost, 	piece,	position, newpin1, newpin2, newpin3 };
-						statespace.insert(move);
+						move.cost = EvaluateMove(next_occupance, pieces, 2);
+						statespace[piece].push_back(move);
+
+						if (false)
+						{
+							// Tracing
+							std::wstringstream str;
+							str << " Piece " << PieceName(piece).c_str() << ", Pin " << PinIdName(move.pin1) << ", Position " << (int)(move.position) << ", Level " << pieces.size() << ", Cost " << move.cost << std::endl;
+							OutputDebugString(str.str().c_str());
+
+							// Display the move
+							IqLinkPresenter pr;
+							pr.Visualize(next_occupance);
+
+							// Press any key
+							//std::cin.ignore();
+						}
+
 					}					
 				}				
 			}
+
+			// Sort the vector and make it unique
+			std::sort(statespace[piece].begin(), statespace[piece].end());
+			statespace[piece].erase(std::unique(statespace[piece].begin(), statespace[piece].end()), statespace[piece].end());
 		}
 	}
+
+
 	return true;
 }
 
@@ -286,50 +308,5 @@ unsigned long CIqLinkBackTrackHeuristic::EvaluateMove(
 	std::vector<unsigned long> pieces,
 	unsigned char level)
 {
-	return 1;
-	//if(pieces.empty() || level == 0)
-	//{
-	//	// We successfully reached the requested depth or we finished! Compute cost of the occupance
-	//	return Cost(occupance, pieces);
-	//}
-
-	//unsigned long cost = 0xFFFFFFFF;
-
-	//for (auto piece : pieces)
-	//{
-	//	for (auto pin : occupance)
-	//	{
-	//		for (unsigned char position = 0; position < IqLinkPiecePositions; ++position)
-	//		{
-	//			// Rotate the piece to a given position. Get the possibly occupied pins with occupance masks
-	//			unsigned long long pin1, pin2, pin3;
-	//			if (RotatePiece(pin, piece, position, pin1, pin2, pin3))
-	//			{
-	//				// Check possible placement and get the new pins
-	//				unsigned long long newpin1, newpin2, newpin3;
-	//				if (IsAvailable(pin1, occupance, newpin1) && IsAvailable(pin2, occupance, newpin2) && IsAvailable(pin3, occupance, newpin3))
-	//				{
-	//					// Remove used piece from pieces
-	//					std::vector<unsigned long> next_pieces;
-	//					std::copy_if(pieces.begin(), pieces.end(), std::back_inserter(next_pieces), [=](auto p) { return !(p == piece); });
-
-	//					// Update new occupance
-	//					std::vector<unsigned long long> next_occupance = occupance;
-	//					UpdatePin(newpin1, next_occupance);
-	//					UpdatePin(newpin2, next_occupance);
-	//					UpdatePin(newpin3, next_occupance);
-
-	//					// Do evaluation of next move by brute force , look _level in-depth
-	//					unsigned long cost_next = EvaluateMove(next_occupance, next_pieces, level - 1);
-	//					// Find the smallest cost in all branches
-	//					if (cost > cost_next)
-	//					{
-	//						cost = cost_next;
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
-	//return cost;
+	return Cost(occupance, pieces);
 }
