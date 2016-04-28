@@ -96,11 +96,8 @@ public:
 	// Solve using a cost function associated with each move
 	virtual bool Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize);
 	bool GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace);
-
-private:
-	//void Solve_120(const std::vector<unsigned long long>& occupance, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
-	//bool Solve_51(const std::vector<unsigned long long>& occupance, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace, bool fStopAt1st, bool fVisualize);
 };
+	bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
+	bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
+	bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
 
-bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
-bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);

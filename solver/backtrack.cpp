@@ -331,11 +331,11 @@ bool CIqLinkBackTrackHeuristic2::Solve(std::vector<unsigned long long> occupance
 	for (unsigned long i = 0; i < num_threads - 1; ++i)
 	{
 		// launch a new thread to accumulate the results for the block
-		threads[i] = std::thread(Solve_120, occupance, statespace, fStopAt1st, fVisualize, i, num_threads);
+		threads[i] = std::thread(Solve_0, occupance, statespace, fStopAt1st, fVisualize, i, num_threads);
 	}
 	
 	// Last thread is this one
-	Solve_120( occupance, statespace, fStopAt1st, fVisualize, num_threads - 1, num_threads);
+	Solve_0( occupance, statespace, fStopAt1st, fVisualize, num_threads - 1, num_threads);
 
 	// Wait for all
 	std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
@@ -377,11 +377,11 @@ bool CIqLinkBackTrackHeuristic2::GenerateStateSpace(const std::vector<unsigned l
 							UpdatePin(newpin3, next_occupance);
 
 							// Display the move
-							//IqLinkPresenter pr;
-							//pr.Visualize(next_occupance);
+							/*IqLinkPresenter pr;
+							pr.Visualize(next_occupance);*/
 
 							// Press any key
-							//std::cin.ignore();
+							//	std::cin.ignore();
 
 							CIqLinkOcc o = CompressOcc(next_occupance);
 							statespace[piece].push_back(o);
@@ -389,10 +389,6 @@ bool CIqLinkBackTrackHeuristic2::GenerateStateSpace(const std::vector<unsigned l
 					}
 				}
 			}
-
-			// Sort the vector and make it unique
-			/*std::sort(statespace[piece].begin(), statespace[piece].end());
-			statespace[piece].erase(std::unique(statespace[piece].begin(), statespace[piece].end()), statespace[piece].end());*/
 		}
 	}
 
@@ -465,21 +461,6 @@ bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long
 																	{
 																		if (s.Discrete(stateOrangePiece))
 																		{
-																			s = s | stateOrangePiece;
-																			IqLinkPresenter pr;
-																			pr.Visualize(occupance);
-																			pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
-																			pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
-																			pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple);
-																			pr.Visualize(stateLightPurplePiece, PieceColor::LightPurple);
-																			pr.Visualize(stateGreenPiece, PieceColor::Green);
-																			pr.Visualize(stateLightPinkPiece, PieceColor::LightPink);
-																			pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink);
-																			pr.Visualize(stateRedPiece, PieceColor::Red);
-																			pr.Visualize(stateOrangePiece, PieceColor::Orange);
-
-																			std::cin.ignore();
-
 																			for (auto stateYellowPiece : statespace[(unsigned long)YellowPiece])
 																			{
 																				if (s.Discrete(stateYellowPiece))
@@ -490,7 +471,7 @@ bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long
 																					// LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, 
 																					// GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece 
 
-																					IqLinkPresenter pr;
+															/*						IqLinkPresenter pr;
 																					pr.Visualize(occupance);
 																					pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
 																					pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
@@ -502,10 +483,7 @@ bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long
 																					pr.Visualize(stateRedPiece, PieceColor::Red);
 																					pr.Visualize(stateOrangePiece, PieceColor::Orange);
 																					pr.Visualize(stateYellowPiece, PieceColor::Yellow);
-
-																					// Press any key
-																					std::cin.ignore();
-
+*/
 																					if (fStopAt1st)
 																					{
 																						return true;
@@ -588,16 +566,16 @@ bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long,
 										{
 											s = s | stateYellowPiece;
 
-											// Display the move
-											IqLinkPresenter pr;
-											pr.Visualize(occupance);
-											pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue); 
-											pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple); 
-											pr.Visualize(stateDarkGreenPiece, PieceColor::DarkGreen); 
-											pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink); 
-											pr.Visualize(stateYellowPiece, PieceColor::Yellow);
-											// Press any key
-											std::cin.ignore();
+											//// Display the move
+											//IqLinkPresenter pr;
+											//pr.Visualize(occupance);
+											//pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue); 
+											//pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple); 
+											//pr.Visualize(stateDarkGreenPiece, PieceColor::DarkGreen); 
+											//pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink); 
+											//pr.Visualize(stateYellowPiece, PieceColor::Yellow);
+											//// Press any key
+											//std::cin.ignore();
 
 											if (fStopAt1st)
 											{
@@ -621,3 +599,141 @@ bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long,
 			
 	return false;
 }
+
+bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long,
+	std::vector<CIqLinkOcc >> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum)
+{
+	std::vector<CIqLinkOcc> parv;
+	std::vector<CIqLinkOcc>& temp = statespace[(unsigned long)LightBluePiece];
+	size_t blen = std::distance(temp.begin(), temp.end()) / tnum;
+	size_t offset = blen * id;
+	if (id >= tnum - 1)
+	{
+		parv.assign(temp.begin() + offset, temp.end());
+	}
+	else
+	{
+		parv.assign(temp.begin() + offset, temp.begin() + offset + blen);
+	}
+
+	CIqLinkOcc s;
+	for (auto stateLightBluePiece : parv)
+	{
+		if (s.Discrete(stateLightBluePiece))
+		{
+			s = s | stateLightBluePiece;
+			for (auto stateDarkGreenPiece : statespace[(unsigned long)DarkGreenPiece])
+			{
+				if (s.Discrete(stateDarkGreenPiece))
+				{
+					s = s | stateDarkGreenPiece;
+					for (auto stateLightGreenPiece : statespace[(unsigned long)LightGreenPiece])
+					{
+						if (s.Discrete(stateLightGreenPiece))
+						{
+							s = s | stateLightGreenPiece;
+							for (auto stateDarkBluePiece : statespace[(unsigned long)DarkBluePiece])
+							{
+								if (s.Discrete(stateDarkBluePiece))
+								{
+									s = s | stateDarkBluePiece;
+									for (auto stateDarkPurplePiece : statespace[(unsigned long)DarkPurplePiece])
+									{
+										if (s.Discrete(stateDarkPurplePiece))
+										{
+											s = s | stateDarkPurplePiece;
+											for (auto stateLightPurplePiece : statespace[(unsigned long)LightPurplePiece])
+											{
+												if (s.Discrete(stateLightPurplePiece))
+												{
+													s = s | stateLightPurplePiece;
+													for (auto stateGreenPiece : statespace[(unsigned long)GreenPiece])
+													{
+														if (s.Discrete(stateGreenPiece))
+														{
+															s = s | stateGreenPiece;
+															for (auto stateLightPinkPiece : statespace[(unsigned long)LightPinkPiece])
+															{
+																if (s.Discrete(stateLightPinkPiece))
+																{
+																	s = s | stateLightPinkPiece;
+																	for (auto stateDarkPinkPiece : statespace[(unsigned long)DarkPinkPiece])
+																	{
+																		if (s.Discrete(stateDarkPinkPiece))
+																		{
+																			s = s | stateDarkPinkPiece;
+																			for (auto stateRedPiece : statespace[(unsigned long)RedPiece])
+																			{
+																				if (s.Discrete(stateRedPiece))
+																				{
+																					s = s | stateRedPiece;
+																					for (auto stateOrangePiece : statespace[(unsigned long)OrangePiece])
+																					{
+																						if (s.Discrete(stateOrangePiece))
+																						{
+																							for (auto stateYellowPiece : statespace[(unsigned long)YellowPiece])
+																							{
+																								if (s.Discrete(stateYellowPiece))
+																								{
+																									s = s | stateYellowPiece;
+
+																									// Display the moves
+																									// LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, 
+																									// GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece 
+
+																									IqLinkPresenter pr;
+																									pr.Visualize(occupance);
+																									pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
+																									pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
+																									pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple);
+																									pr.Visualize(stateLightPurplePiece, PieceColor::LightPurple);
+																									pr.Visualize(stateGreenPiece, PieceColor::Green);
+																									pr.Visualize(stateLightPinkPiece, PieceColor::LightPink);
+																									pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink);
+																									pr.Visualize(stateRedPiece, PieceColor::Red);
+																									pr.Visualize(stateOrangePiece, PieceColor::Orange);
+																									pr.Visualize(stateYellowPiece, PieceColor::Yellow);
+																									
+																									if (fStopAt1st)
+																									{
+																										return true;
+																									}
+																									s = s & ~stateYellowPiece;
+																								}
+																							}
+																							s = s & ~stateOrangePiece;
+																						}
+																					}
+																					s = s & ~stateRedPiece;
+																				}
+																			}
+																			s = s & ~stateDarkPinkPiece;
+																		}
+																	}
+																	s = s & ~stateLightPinkPiece;
+																}
+															}
+															s = s & ~stateGreenPiece;
+														}
+													}
+													s = s & ~stateLightPurplePiece;
+												}
+											}
+											s = s & ~stateDarkPurplePiece;
+										}
+									}
+									s = s & ~stateDarkBluePiece;
+								}
+							}
+							s = s & ~stateLightGreenPiece;
+						}
+					}
+					s = s & ~stateDarkGreenPiece;
+				}
+			}
+			s = s & ~stateLightBluePiece;
+		}
+	}	
+	return false;
+}
+

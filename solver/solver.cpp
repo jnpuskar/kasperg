@@ -48,7 +48,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	// Pieces and occupance vector are defined by the game number --> 51 in this case
 	std::vector<unsigned long> pieces;
 	std::vector<unsigned long long> occupance;
-	if (!SetupGame(occupance, pieces, 120))
+	if (!SetupGame(occupance, pieces, 0))
 	{
 		// Bad things have happened
 		return -1;
