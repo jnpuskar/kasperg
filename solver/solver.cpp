@@ -21,6 +21,10 @@
 #include "iqlink.h"
 #include "backtrack.h"
 #include "presenter.h"
+#include <atomic>
+
+std::atomic<unsigned long> g_cnt = 0;
+std::mutex g_mutex;
 
 void Intro(bool fShow)
 {
@@ -56,7 +60,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	// Solve the game, visualize partial progress flag and stop at 1st solution flag
 	CIqLinkBackTrackHeuristic2 solver;
-	solver.Solve(occupance, pieces, true, true);
+	solver.Solve(occupance, pieces, false, true);
 	
 	// Get computed solution(s) 
 	std::set<std::vector<unsigned long long> > solutions = solver.GetSolutions();

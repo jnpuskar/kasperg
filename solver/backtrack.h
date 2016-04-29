@@ -22,6 +22,8 @@
 #include "iqlink.h"
 #include <vector>
 #include <set>
+#include <atomic>
+#include <mutex>
 
 struct CIqLinkMove
 {	
@@ -101,3 +103,5 @@ public:
 	bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
 	bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
 
+	extern std::atomic<unsigned long> g_cnt;
+	extern std::mutex g_mutex;

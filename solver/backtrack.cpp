@@ -25,6 +25,9 @@
 #include <sstream>
 #include <thread>
 #include <algorithm>
+#include <atomic>
+#include <mutex>
+
 
 // Brute force approach
 bool CIqLinkBackTrack::Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize)
@@ -599,7 +602,6 @@ bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long,
 			
 	return false;
 }
-
 bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long,
 	std::vector<CIqLinkOcc >> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum)
 {
@@ -676,24 +678,29 @@ bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long,
 																								if (s.Discrete(stateYellowPiece))
 																								{
 																									s = s | stateYellowPiece;
-
+																									
+																									// Increase count
+																									g_cnt++;
 																									// Display the moves
 																									// LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, 
 																									// GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece 
-
-																									IqLinkPresenter pr;
-																									pr.Visualize(occupance);
-																									pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
-																									pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
-																									pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple);
-																									pr.Visualize(stateLightPurplePiece, PieceColor::LightPurple);
-																									pr.Visualize(stateGreenPiece, PieceColor::Green);
-																									pr.Visualize(stateLightPinkPiece, PieceColor::LightPink);
-																									pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink);
-																									pr.Visualize(stateRedPiece, PieceColor::Red);
-																									pr.Visualize(stateOrangePiece, PieceColor::Orange);
-																									pr.Visualize(stateYellowPiece, PieceColor::Yellow);
-																									
+																									{
+																										std::lock_guard<std::mutex> guard(g_mutex);
+																										IqLinkPresenter pr;
+																										pr.Visualize(occupance);
+																										pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
+																										pr.Visualize(stateDarkGreenPiece, PieceColor::DarkGreen);
+																										pr.Visualize(stateLightGreenPiece, PieceColor::LightGreen);
+																										pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
+																										pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple);
+																										pr.Visualize(stateLightPurplePiece, PieceColor::LightPurple);
+																										pr.Visualize(stateGreenPiece, PieceColor::Green);
+																										pr.Visualize(stateLightPinkPiece, PieceColor::LightPink);
+																										pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink);
+																										pr.Visualize(stateRedPiece, PieceColor::Red);
+																										pr.Visualize(stateOrangePiece, PieceColor::Orange);
+																										pr.Visualize(stateYellowPiece, PieceColor::Yellow);
+																									}
 																									if (fStopAt1st)
 																									{
 																										return true;
