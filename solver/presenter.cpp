@@ -48,16 +48,16 @@ void IqLinkPresenter::Visualize(const std::vector<unsigned long long>& solution)
 	// Each pin will be displayed on given console
 	for_each(solution.begin(), solution.end(), [&](auto ull) { DisplayPin(hStdout, ull); });	
 }
-void IqLinkPresenter::Visualize(const CIqLinkOcc& occ, PieceColor c)
+void IqLinkPresenter::Overlay(std::vector<unsigned long long>& occupance, const CIqLinkOcc& occ, PieceColor c)
 {
 
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 
-	std::vector<unsigned long long> occupance;
-	DecompressOcc(occ, c, occupance);
+	std::vector<unsigned long long> t_occupance;
+	DecompressOcc(occ, c, t_occupance);
 	
-	// Each pin will be displayed on given console
-	for_each(occupance.begin(), occupance.end(), [&](auto ull) { DisplayPin(hStdout, ull); });
+	// Overlay the 2 vectors
+	std::transform(t_occupance.begin(), t_occupance.end(), occupance.begin(), occupance.begin(), [&](auto pin1, auto pin2) { return pin1 | pin2; });
 }
 void IqLinkPresenter::DisplayPin(HANDLE h, unsigned long long pin)
 {

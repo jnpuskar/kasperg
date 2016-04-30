@@ -380,11 +380,11 @@ bool CIqLinkBackTrackHeuristic2::GenerateStateSpace(const std::vector<unsigned l
 							UpdatePin(newpin3, next_occupance);
 
 							// Display the move
-							/*IqLinkPresenter pr;
-							pr.Visualize(next_occupance);*/
+							//IqLinkPresenter pr;
+							//pr.Visualize(next_occupance);
 
 							// Press any key
-							//	std::cin.ignore();
+							//std::cin.ignore();
 
 							CIqLinkOcc o = CompressOcc(next_occupance);
 							statespace[piece].push_back(o);
@@ -673,6 +673,7 @@ bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long,
 																					{
 																						if (s.Discrete(stateOrangePiece))
 																						{
+																							s = s | stateOrangePiece;
 																							for (auto stateYellowPiece : statespace[(unsigned long)YellowPiece])
 																							{
 																								if (s.Discrete(stateYellowPiece))
@@ -684,23 +685,49 @@ bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long,
 																									// Display the moves
 																									// LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, 
 																									// GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece 
-																									{
+																									/*{
 																										std::lock_guard<std::mutex> guard(g_mutex);
 																										IqLinkPresenter pr;
-																										pr.Visualize(occupance);
-																										pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
-																										pr.Visualize(stateDarkGreenPiece, PieceColor::DarkGreen);
-																										pr.Visualize(stateLightGreenPiece, PieceColor::LightGreen);
-																										pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
-																										pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple);
-																										pr.Visualize(stateLightPurplePiece, PieceColor::LightPurple);
-																										pr.Visualize(stateGreenPiece, PieceColor::Green);
-																										pr.Visualize(stateLightPinkPiece, PieceColor::LightPink);
-																										pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink);
-																										pr.Visualize(stateRedPiece, PieceColor::Red);
-																										pr.Visualize(stateOrangePiece, PieceColor::Orange);
-																										pr.Visualize(stateYellowPiece, PieceColor::Yellow);
-																									}
+																										std::vector<unsigned long long> t_o = occupance;
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateLightBluePiece, PieceColor::LightBlue);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateDarkGreenPiece, PieceColor::DarkGreen);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateLightGreenPiece, PieceColor::LightGreen);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateDarkBluePiece, PieceColor::DarkBlue);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateDarkPurplePiece, PieceColor::DarkPurple);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateLightPurplePiece, PieceColor::LightPurple);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateGreenPiece, PieceColor::Green);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateLightPinkPiece, PieceColor::LightPink);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateDarkPinkPiece, PieceColor::DarkPink);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateRedPiece, PieceColor::Red);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateOrangePiece, PieceColor::Orange);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																										pr.Overlay(t_o,stateYellowPiece, PieceColor::Yellow);
+																										pr.Visualize(t_o);
+																										std::cin.ignore();
+																									}*/
 																									if (fStopAt1st)
 																									{
 																										return true;
