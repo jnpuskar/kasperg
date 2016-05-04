@@ -27,6 +27,8 @@
 #include <algorithm>
 #include <atomic>
 #include <mutex>
+#include <set>
+
 
 
 // Brute force approach
@@ -323,8 +325,21 @@ bool CIqLinkBackTrackHeuristic2::Solve(std::vector<unsigned long long> occupance
 	if (!GenerateStateSpace(occupance, pieces, statespace))
 		return false;
 
-	// std::thread::hardware_ concurrency() function returns the number of threads 
-	// that can run concurrently for a given execution.
+	// Optimized solution requires different function for different game. 
+	std::function<bool(std::vector<unsigned long long>, std::map<unsigned long, std::vector<CIqLinkOcc >>, bool, bool, unsigned long, unsigned long)> fn;
+	switch (_game)
+	{
+		case 51:
+			fn = &Solve_51;
+			break;
+		case 120:
+			fn = &Solve_120;
+			break;
+		default:
+			fn = &Solve_0;
+	}
+
+	// std::thread::hardware_ concurrency() function returns the number of threads that can run concurrently for a given execution.
 	unsigned long const num_threads = std::thread::hardware_concurrency();
 
 	// Launch one fewer thread than num_threads, because we already have one.
@@ -334,11 +349,11 @@ bool CIqLinkBackTrackHeuristic2::Solve(std::vector<unsigned long long> occupance
 	for (unsigned long i = 0; i < num_threads - 1; ++i)
 	{
 		// launch a new thread to accumulate the results for the block
-		threads[i] = std::thread(Solve_0, occupance, statespace, fStopAt1st, fVisualize, i, num_threads);
+		threads[i] = std::thread(fn, occupance, statespace, fStopAt1st, fVisualize, i, num_threads);
 	}
 	
 	// Last thread is this one
-	Solve_0( occupance, statespace, fStopAt1st, fVisualize, num_threads - 1, num_threads);
+	fn( occupance, statespace, fStopAt1st, fVisualize, num_threads - 1, num_threads);
 
 	// Wait for all
 	std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
@@ -464,29 +479,42 @@ bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long
 																	{
 																		if (s.Discrete(stateOrangePiece))
 																		{
+																			s = s | stateOrangePiece;
 																			for (auto stateYellowPiece : statespace[(unsigned long)YellowPiece])
 																			{
 																				if (s.Discrete(stateYellowPiece))
 																				{
 																					s = s | stateYellowPiece;
 
-																					// Display the moves
-																					// LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, 
-																					// GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece 
+																					// Synchronize this scope
+																					std::lock_guard<std::mutex> guard(g_mutex);
+																					
+																					// Increase count
+																					g_cnt++;
 
-															/*						IqLinkPresenter pr;
-																					pr.Visualize(occupance);
-																					pr.Visualize(stateLightBluePiece, PieceColor::LightBlue);
-																					pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue);
-																					pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple);
-																					pr.Visualize(stateLightPurplePiece, PieceColor::LightPurple);
-																					pr.Visualize(stateGreenPiece, PieceColor::Green);
-																					pr.Visualize(stateLightPinkPiece, PieceColor::LightPink);
-																					pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink);
-																					pr.Visualize(stateRedPiece, PieceColor::Red);
-																					pr.Visualize(stateOrangePiece, PieceColor::Orange);
-																					pr.Visualize(stateYellowPiece, PieceColor::Yellow);
-*/
+																					// Construct the occupance that was found
+																					std::vector<unsigned long long> t_o = occupance;
+																					IqLinkPresenter pr;
+																					pr.Overlay(t_o, stateLightBluePiece, PieceColor::LightBlue);
+																					pr.Overlay(t_o, stateDarkBluePiece, PieceColor::DarkBlue);
+																					pr.Overlay(t_o, stateDarkPurplePiece, PieceColor::DarkPurple);
+																					pr.Overlay(t_o, stateLightPurplePiece, PieceColor::LightPurple);
+																					pr.Overlay(t_o, stateGreenPiece, PieceColor::Green);
+																					pr.Overlay(t_o, stateLightPinkPiece, PieceColor::LightPink);
+																					pr.Overlay(t_o, stateDarkPinkPiece, PieceColor::DarkPink);
+																					pr.Overlay(t_o, stateRedPiece, PieceColor::Red);
+																					pr.Overlay(t_o, stateOrangePiece, PieceColor::Orange);
+																					pr.Overlay(t_o, stateYellowPiece, PieceColor::Yellow);
+
+																					// Add to solutions - discard non-unique ones via set behavior
+																					g_solutions.insert(t_o);
+
+																					if (fVisualize)
+																					{
+																						pr.Visualize(t_o);
+																					}
+
+																					// Signal end of life
 																					if (fStopAt1st)
 																					{
 																						return true;
@@ -569,16 +597,28 @@ bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long,
 										{
 											s = s | stateYellowPiece;
 
-											//// Display the move
-											//IqLinkPresenter pr;
-											//pr.Visualize(occupance);
-											//pr.Visualize(stateDarkBluePiece, PieceColor::DarkBlue); 
-											//pr.Visualize(stateDarkPurplePiece, PieceColor::DarkPurple); 
-											//pr.Visualize(stateDarkGreenPiece, PieceColor::DarkGreen); 
-											//pr.Visualize(stateDarkPinkPiece, PieceColor::DarkPink); 
-											//pr.Visualize(stateYellowPiece, PieceColor::Yellow);
-											//// Press any key
-											//std::cin.ignore();
+											// Synchronize this scope
+											std::lock_guard<std::mutex> guard(g_mutex);
+
+											// Increase count
+											g_cnt++;
+
+											// Construct the occupance that was found
+											std::vector<unsigned long long> t_o = occupance;
+											IqLinkPresenter pr;
+											pr.Overlay(t_o, stateDarkBluePiece, PieceColor::DarkBlue); 
+											pr.Overlay(t_o, stateDarkPurplePiece, PieceColor::DarkPurple); 
+											pr.Overlay(t_o, stateDarkGreenPiece, PieceColor::DarkGreen); 
+											pr.Overlay(t_o, stateDarkPinkPiece, PieceColor::DarkPink); 
+											pr.Overlay(t_o, stateYellowPiece, PieceColor::Yellow);
+											
+											// Add to solutions - discard non-unique ones via set behavior
+											g_solutions.insert(t_o);
+
+											if (fVisualize)
+											{
+												pr.Visualize(t_o);
+											}
 
 											if (fStopAt1st)
 											{

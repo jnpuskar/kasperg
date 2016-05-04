@@ -25,6 +25,7 @@
 
 std::atomic<unsigned long> g_cnt = 0;
 std::mutex g_mutex;
+std::set<std::vector<unsigned long long> > g_solutions;
 
 void Intro(bool fShow)
 {
@@ -52,22 +53,21 @@ int _tmain(int argc, _TCHAR* argv[])
 	// Pieces and occupance vector are defined by the game number --> 51 in this case
 	std::vector<unsigned long> pieces;
 	std::vector<unsigned long long> occupance;
-	if (!SetupGame(occupance, pieces, 0))
+	unsigned long game_no = 120;
+	if (!SetupGame(occupance, pieces, game_no))
 	{
 		// Bad things have happened
 		return -1;
 	}
 
 	// Solve the game, visualize partial progress flag and stop at 1st solution flag
-	CIqLinkBackTrackHeuristic2 solver;
+	CIqLinkBackTrackHeuristic2 solver(game_no);
+	//CIqLinkBackTrackBrute solver;
 	solver.Solve(occupance, pieces, false, true);
 	
-	// Get computed solution(s) 
-	std::set<std::vector<unsigned long long> > solutions = solver.GetSolutions();
-
 	// Visualize the results. Wait for ENTER after each one.
 	IqLinkPresenter presenter;
-	presenter.Visualize(solutions, true);
+	presenter.Visualize(g_solutions, true);
 
 	// Bye 
 	return 0;
