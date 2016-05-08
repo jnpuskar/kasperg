@@ -108,4 +108,4 @@ private:
 
 	extern std::atomic<unsigned long> g_cnt;
 	extern std::mutex g_mutex;
-	extern std::set<std::vector<unsigned long long> > g_solutions;
+	extern std::vector<std::vector<unsigned long long> > g_solutions;

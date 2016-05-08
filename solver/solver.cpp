@@ -25,7 +25,7 @@
 
 std::atomic<unsigned long> g_cnt = 0;
 std::mutex g_mutex;
-std::set<std::vector<unsigned long long> > g_solutions;
+std::vector<std::vector<unsigned long long> > g_solutions;
 
 void Intro(bool fShow)
 {
@@ -50,10 +50,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	// Make an introduction to all used pieces
 	Intro(false);
 
-	// Pieces and occupance vector are defined by the game number --> 51 in this case
+	// Pieces and occupance vector are defined by the game number
 	std::vector<unsigned long> pieces;
 	std::vector<unsigned long long> occupance;
-	unsigned long game_no = 120;
+	unsigned long game_no = 0;
 	if (!SetupGame(occupance, pieces, game_no))
 	{
 		// Bad things have happened

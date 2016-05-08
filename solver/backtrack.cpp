@@ -326,7 +326,7 @@ bool CIqLinkBackTrackHeuristic2::Solve(std::vector<unsigned long long> occupance
 		return false;
 
 	// Optimized solution requires different function for different game. 
-	std::function<bool(std::vector<unsigned long long>, std::map<unsigned long, std::vector<CIqLinkOcc >>, bool, bool, unsigned long, unsigned long)> fn;
+	std::function<bool(std::vector<unsigned long long>, std::map<unsigned long, std::vector<CIqLinkOcc>>, bool, bool, unsigned long, unsigned long)> fn;
 	switch (_game)
 	{
 		case 51:
@@ -506,8 +506,8 @@ bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long
 																					pr.Overlay(t_o, stateOrangePiece, PieceColor::Orange);
 																					pr.Overlay(t_o, stateYellowPiece, PieceColor::Yellow);
 
-																					// Add to solutions - discard non-unique ones via set behavior
-																					g_solutions.insert(t_o);
+																					// Add to solutions
+																					g_solutions.push_back(t_o);
 
 																					if (fVisualize)
 																					{
@@ -613,7 +613,7 @@ bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long,
 											pr.Overlay(t_o, stateYellowPiece, PieceColor::Yellow);
 											
 											// Add to solutions - discard non-unique ones via set behavior
-											g_solutions.insert(t_o);
+											g_solutions.push_back(t_o);
 
 											if (fVisualize)
 											{
@@ -719,55 +719,37 @@ bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long,
 																								if (s.Discrete(stateYellowPiece))
 																								{
 																									s = s | stateYellowPiece;
-																									
+
+																									// Synchronize this scope
+																									std::lock_guard<std::mutex> guard(g_mutex);
+
 																									// Increase count
 																									g_cnt++;
-																									// Display the moves
-																									// LightBluePiece,	DarkBluePiece, DarkPurplePiece,	LightPurplePiece, 
-																									// GreenPiece,	LightPinkPiece,DarkPinkPiece,RedPiece,OrangePiece,YellowPiece 
-																									/*{
-																										std::lock_guard<std::mutex> guard(g_mutex);
-																										IqLinkPresenter pr;
-																										std::vector<unsigned long long> t_o = occupance;
+																									
+																									// Construct the occupance that was found
+																									std::vector<unsigned long long> t_o = occupance;
+																									IqLinkPresenter pr;
+																									pr.Overlay(t_o, stateLightBluePiece, PieceColor::LightBlue);
+																									pr.Overlay(t_o, stateDarkGreenPiece, PieceColor::DarkGreen);
+																									pr.Overlay(t_o, stateLightGreenPiece, PieceColor::LightGreen);
+																									pr.Overlay(t_o, stateDarkBluePiece, PieceColor::DarkBlue);
+																									pr.Overlay(t_o, stateDarkPurplePiece, PieceColor::DarkPurple);
+																									pr.Overlay(t_o, stateLightPurplePiece, PieceColor::LightPurple);
+																									pr.Overlay(t_o, stateGreenPiece, PieceColor::Green);
+																									pr.Overlay(t_o, stateLightPinkPiece, PieceColor::LightPink);
+																									pr.Overlay(t_o, stateDarkPinkPiece, PieceColor::DarkPink);
+																									pr.Overlay(t_o, stateRedPiece, PieceColor::Red);
+																									pr.Overlay(t_o, stateOrangePiece, PieceColor::Orange);
+																									pr.Overlay(t_o, stateYellowPiece, PieceColor::Yellow);
+
+																									// Add to solutions - discard non-unique ones via set behavior
+																									g_solutions.push_back(t_o);
+
+																									if (fVisualize)
+																									{
 																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateLightBluePiece, PieceColor::LightBlue);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateDarkGreenPiece, PieceColor::DarkGreen);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateLightGreenPiece, PieceColor::LightGreen);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateDarkBluePiece, PieceColor::DarkBlue);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateDarkPurplePiece, PieceColor::DarkPurple);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateLightPurplePiece, PieceColor::LightPurple);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateGreenPiece, PieceColor::Green);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateLightPinkPiece, PieceColor::LightPink);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateDarkPinkPiece, PieceColor::DarkPink);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateRedPiece, PieceColor::Red);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateOrangePiece, PieceColor::Orange);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																										pr.Overlay(t_o,stateYellowPiece, PieceColor::Yellow);
-																										pr.Visualize(t_o);
-																										std::cin.ignore();
-																									}*/
+																									}
+
 																									if (fStopAt1st)
 																									{
 																										return true;

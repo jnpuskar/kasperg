@@ -26,7 +26,7 @@
 #include <algorithm>
 
 using namespace std;
-void IqLinkPresenter::Visualize(const std::set<std::vector<unsigned long long>>& solutions, bool fWait)
+void IqLinkPresenter::Visualize(const std::vector<std::vector<unsigned long long>>& solutions, bool fWait)
 {
 	for (auto solution : solutions)
 	{
