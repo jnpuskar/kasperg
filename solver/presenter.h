@@ -27,7 +27,7 @@ class IqLinkPresenter
 {
 public:
 	
-	void Visualize(const std::vector<std::vector<unsigned long long>>& solutions, bool fWait);
+	void Visualize(const std::set<std::vector<unsigned long long>>& solutions, bool fWait);
 	void Visualize(const std::vector<unsigned long long>& solution);
 	void Overlay(std::vector<unsigned long long>& occupance, const CIqLinkOcc& occ, PieceColor c);
 	void DisplayPin(HANDLE h, unsigned long long pin);

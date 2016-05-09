@@ -25,6 +25,11 @@
 #include <atomic>
 #include <mutex>
 
+
+extern std::atomic<unsigned long> g_cnt;
+extern std::mutex g_mutex;
+extern std::set<std::vector<unsigned long long> > g_solutions;
+
 struct CIqLinkMove
 {	
 	unsigned long		cost;			
@@ -52,12 +57,18 @@ public:
 	// Brute force approach
 	virtual bool Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize);
 	// Getter of the computed solutions
-	std::set<std::vector<unsigned long long> > GetSolutions() const { return _solutions; }
-	void AddSolution(const std::vector<unsigned long long>& v) { _solutions.insert(v); }
+	//std::set<std::vector<unsigned long long> > GetSolutions() const { return _solutions; }
+	void AddSolution(const std::vector<unsigned long long>& v) 
+	{   
+		// Synchronize this scope
+		std::lock_guard<std::mutex> guard(g_mutex);
+		// Increase count
+		g_cnt++;
+		// Add to solutions
+		g_solutions.insert(v);
+	}
 	// Demo introduction to pieces
 	void ShowPieces(std::vector<unsigned long> pieces);
-private:
-	std::set<std::vector<unsigned long long> >	_solutions;
 };
 
 class CIqLinkBackTrackBrute : public CIqLinkBackTrack
@@ -105,7 +116,3 @@ private:
 	bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
 	bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
 	bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
-
-	extern std::atomic<unsigned long> g_cnt;
-	extern std::mutex g_mutex;
-	extern std::vector<std::vector<unsigned long long> > g_solutions;

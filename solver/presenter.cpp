@@ -26,7 +26,7 @@
 #include <algorithm>
 
 using namespace std;
-void IqLinkPresenter::Visualize(const std::vector<std::vector<unsigned long long>>& solutions, bool fWait)
+void IqLinkPresenter::Visualize(const std::set<std::vector<unsigned long long>>& solutions, bool fWait)
 {
 	for (auto solution : solutions)
 	{
@@ -50,9 +50,6 @@ void IqLinkPresenter::Visualize(const std::vector<unsigned long long>& solution)
 }
 void IqLinkPresenter::Overlay(std::vector<unsigned long long>& occupance, const CIqLinkOcc& occ, PieceColor c)
 {
-
-	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
 	std::vector<unsigned long long> t_occupance;
 	DecompressOcc(occ, c, t_occupance);
 	

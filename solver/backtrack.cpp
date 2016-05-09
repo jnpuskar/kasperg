@@ -507,7 +507,7 @@ bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long
 																					pr.Overlay(t_o, stateYellowPiece, PieceColor::Yellow);
 
 																					// Add to solutions
-																					g_solutions.push_back(t_o);
+																					g_solutions.insert(t_o);
 
 																					if (fVisualize)
 																					{
@@ -613,7 +613,7 @@ bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long,
 											pr.Overlay(t_o, stateYellowPiece, PieceColor::Yellow);
 											
 											// Add to solutions - discard non-unique ones via set behavior
-											g_solutions.push_back(t_o);
+											g_solutions.insert(t_o);
 
 											if (fVisualize)
 											{
@@ -743,7 +743,7 @@ bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long,
 																									pr.Overlay(t_o, stateYellowPiece, PieceColor::Yellow);
 
 																									// Add to solutions - discard non-unique ones via set behavior
-																									g_solutions.push_back(t_o);
+																									g_solutions.insert(t_o);
 
 																									if (fVisualize)
 																									{
