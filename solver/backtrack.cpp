@@ -180,8 +180,7 @@ bool CIqLinkBackTrackHeuristic::Solve(std::vector<unsigned long long> occupance,
 
 					// Display the move
 					IqLinkPresenter pr;
-					pr.Visualize(next_occupance);
-					
+					pr.Visualize(next_occupance);					
 				}
 
 				// Recursively iterate with new occupance and pieces until we consume all pieces or hit the non-placeable situation or end
@@ -190,6 +189,9 @@ bool CIqLinkBackTrackHeuristic::Solve(std::vector<unsigned long long> occupance,
 				// Exiting after the 1st solution?
 				if (fStopAt1st &&  fResult)
 				{
+					// Display the move
+					IqLinkPresenter pr;
+					pr.Visualize(next_occupance);					
 					return true;
 				}
 			
@@ -280,7 +282,7 @@ bool CIqLinkBackTrackHeuristic::GenerateStateSpace(const std::vector<unsigned lo
 						move.cost = EvaluateMove(next_occupance, pieces, 2);
 						statespace[piece].push_back(move);
 
-						if (true)
+						if (false)
 						{
 							// Tracing
 							std::wstringstream str;
@@ -292,7 +294,7 @@ bool CIqLinkBackTrackHeuristic::GenerateStateSpace(const std::vector<unsigned lo
 							pr.Visualize(next_occupance);
 
 							// Press any key
-							//std::cin.ignore();
+							std::cin.ignore();
 						}
 
 					}					
@@ -318,7 +320,7 @@ unsigned long CIqLinkBackTrackHeuristic::EvaluateMove(
 	return Cost(occupance, pieces);
 }
 
-bool CIqLinkBackTrackHeuristic2::Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize)
+bool CIqLinkBackTrackFast::Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize)
 {
 	// Generate all moves vector
 	std::map<unsigned long, std::vector<CIqLinkOcc>> statespace;
@@ -360,7 +362,7 @@ bool CIqLinkBackTrackHeuristic2::Solve(std::vector<unsigned long long> occupance
 
 	return true;
 }
-bool CIqLinkBackTrackHeuristic2::GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace)
+bool CIqLinkBackTrackFast::GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace)
 {
 
 	std::vector<unsigned long long> empty_occupance = { MakeEmptyPin(PinId::A), MakeEmptyPin(PinId::B), MakeEmptyPin(PinId::C), MakeEmptyPin(PinId::D), MakeEmptyPin(PinId::E), MakeEmptyPin(PinId::F),
@@ -792,4 +794,3 @@ bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long,
 	}	
 	return false;
 }
-

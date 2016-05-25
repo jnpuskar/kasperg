@@ -100,19 +100,22 @@ private:
 	
 };
 
-class CIqLinkBackTrackHeuristic2 : public CIqLinkBackTrack
+class CIqLinkBackTrackFast : public CIqLinkBackTrack
 {
 public:
 	// Empty board constructor
-	CIqLinkBackTrackHeuristic2(unsigned long game) : CIqLinkBackTrack() { _game = game; }
-	~CIqLinkBackTrackHeuristic2() {}
+	CIqLinkBackTrackFast(unsigned long game) : CIqLinkBackTrack() { _game = game; }
+	~CIqLinkBackTrackFast() {}
 	void SetGame(unsigned long game) { _game = game; }
-	// Solve using a cost function associated with each move
+	unsigned long Game() const { return _game; }
+	// Solve using very fast bitwise operators on a precomputed state space
 	virtual bool Solve(std::vector<unsigned long long> occupance, std::vector<unsigned long> pieces, bool fStopAt1st, bool fVisualize);
 	bool GenerateStateSpace(const std::vector<unsigned long long>& occupance, const std::vector<unsigned long>& pieces, std::map<unsigned long, std::vector<CIqLinkOcc>>& statespace);
 private:
 	unsigned long _game;
 };
-	bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
-	bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
-	bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
+
+// Multi-threaded execution functions
+bool Solve_120(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
+bool Solve_51(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);
+bool Solve_0(std::vector<unsigned long long> occupance, std::map<unsigned long, std::vector<CIqLinkOcc>> statespace, bool fStopAt1st, bool fVisualize, unsigned long id, unsigned long tnum);

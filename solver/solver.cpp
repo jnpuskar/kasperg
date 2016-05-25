@@ -61,8 +61,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	// Solve the game, visualize partial progress flag and stop at 1st solution flag
-	std::unique_ptr<CIqLinkBackTrack> solver(new CIqLinkBackTrackHeuristic2(game_no)/* new BackTrackBrute()*/);
-	solver->Solve(occupance, pieces, false, true);
+	//std::unique_ptr<CIqLinkBackTrack> solver(new CIqLinkBackTrackBrute());
+	//std::unique_ptr<CIqLinkBackTrack> solver(new CIqLinkBackTrackHeuristic());
+	
+	std::unique_ptr<CIqLinkBackTrack> solver(new CIqLinkBackTrackFast(game_no));
+	solver->Solve(occupance, pieces, true, true);
 	
 	// Visualize the results. Wait for ENTER after each one.
 	IqLinkPresenter presenter;
